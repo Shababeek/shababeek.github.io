@@ -1,48 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.5 -1.5 3 3" width="100" height="100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.8 -1.8 3.6 3.6" width="100" height="100">
   <!--
-    Mashrabiya Star Pattern — Shababeek Labs
-    ==========================================
-    This SVG defines the geometric pattern used throughout the 3D scene.
-    The 3D site reads this file at runtime and converts the paths into Three.js geometry.
+    Mashrabiya Lattice Pattern — Shababeek Labs
+    ==============================================
+    2×2 grid of interconnected 8-pointed stars.
+    Adjacent outer squares share edges, and the overlapping
+    rotated squares create the classic mashrabiya lattice.
 
-    Coordinate system: centered at (0,0), unit scale = 1
-    The 3D scene multiplies all coordinates by the portal's scale factor.
+    Grid: 4 stars centered at (±0.65, ±0.65), each with unit size 0.65
+    Shared edges fall on x=0 and y=0 axes.
+    The 3D site reads this file at runtime via fetch().
 
-    To modify the pattern:
-    - Edit the paths/shapes below
-    - The 3D site will pick up changes on next page load
-    - Each <path>/<polygon>/<circle> has a data-layer attribute:
-        "outer"  = primary square (brightest)
-        "star"   = rotated 45° square (medium brightness)
-        "detail" = inner octagon (subtle)
-        "center" = center dot
-        "glow"   = background fill area (very faint)
-
-    Color is applied by the 3D scene per-portal, not from this SVG.
+    data-layer attributes:
+      "outer"  = axis-aligned squares (brightest)
+      "star"   = 45° rotated diamonds (medium)
+      "detail" = inner octagons + lattice connectors (subtle)
+      "center" = center dots
+      "glow"   = background fill area (very faint)
   -->
 
-  <!-- Layer: outer — axis-aligned square -->
+  <!-- ═══ OUTER SQUARES — 2×2 grid sharing edges ═══ -->
+  <!-- Top-left star (A) -->
   <rect data-layer="outer"
-        x="-1" y="-1" width="2" height="2"
-        fill="none" stroke="white" stroke-width="0.08"/>
+        x="-1.3" y="-1.3" width="1.3" height="1.3"
+        fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Top-right star (B) -->
+  <rect data-layer="outer"
+        x="0" y="-1.3" width="1.3" height="1.3"
+        fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Bottom-left star (C) -->
+  <rect data-layer="outer"
+        x="-1.3" y="0" width="1.3" height="1.3"
+        fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Bottom-right star (D) -->
+  <rect data-layer="outer"
+        x="0" y="0" width="1.3" height="1.3"
+        fill="none" stroke="white" stroke-width="0.06"/>
 
-  <!-- Layer: star — 45° rotated square forming the 8-pointed star -->
+  <!-- ═══ STAR DIAMONDS — 45° rotated squares ═══ -->
+  <!-- Star A: center (-0.65, -0.65) -->
   <polygon data-layer="star"
-           points="0,-1.414 1.414,0 0,1.414 -1.414,0"
-           fill="none" stroke="white" stroke-width="0.08"/>
+           points="-0.65,-1.569 0.269,-0.65 -0.65,0.269 -1.569,-0.65"
+           fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Star B: center (0.65, -0.65) -->
+  <polygon data-layer="star"
+           points="0.65,-1.569 1.569,-0.65 0.65,0.269 -0.269,-0.65"
+           fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Star C: center (-0.65, 0.65) -->
+  <polygon data-layer="star"
+           points="-0.65,-0.269 0.269,0.65 -0.65,1.569 -1.569,0.65"
+           fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Star D: center (0.65, 0.65) -->
+  <polygon data-layer="star"
+           points="0.65,-0.269 1.569,0.65 0.65,1.569 -0.269,0.65"
+           fill="none" stroke="white" stroke-width="0.06"/>
 
-  <!-- Layer: detail — inner octagon -->
+  <!-- ═══ INNER OCTAGONS — one per star ═══ -->
+  <!-- Star A: center (-0.65, -0.65) -->
   <polygon data-layer="detail"
-           points="0.55,0 0.389,0.389 0,0.55 -0.389,0.389 -0.55,0 -0.389,-0.389 0,-0.55 0.389,-0.389"
-           fill="none" stroke="white" stroke-width="0.05"/>
+           points="-0.292,-0.65 -0.397,-0.397 -0.65,-0.292 -0.903,-0.397 -1.008,-0.65 -0.903,-0.903 -0.65,-1.008 -0.397,-0.903"
+           fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Star B: center (0.65, -0.65) -->
+  <polygon data-layer="detail"
+           points="1.008,-0.65 0.903,-0.397 0.65,-0.292 0.397,-0.397 0.292,-0.65 0.397,-0.903 0.65,-1.008 0.903,-0.903"
+           fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Star C: center (-0.65, 0.65) -->
+  <polygon data-layer="detail"
+           points="-0.292,0.65 -0.397,0.903 -0.65,1.008 -0.903,0.903 -1.008,0.65 -0.903,0.397 -0.65,0.292 -0.397,0.397"
+           fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Star D: center (0.65, 0.65) -->
+  <polygon data-layer="detail"
+           points="1.008,0.65 0.903,0.903 0.65,1.008 0.397,0.903 0.292,0.65 0.397,0.397 0.65,0.292 0.903,0.397"
+           fill="none" stroke="white" stroke-width="0.04"/>
 
-  <!-- Layer: center — center dot -->
-  <circle data-layer="center"
-          cx="0" cy="0" r="0.12"
-          fill="white" stroke="none"/>
+  <!-- ═══ LATTICE CONNECTORS — diamonds formed at intersections ═══ -->
+  <!-- Center connector (where all 4 diamond edges cross) -->
+  <polygon data-layer="detail"
+           points="0,-0.381 0.381,0 0,0.381 -0.381,0"
+           fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Edge connector: top (between A & B) -->
+  <polygon data-layer="detail"
+           points="0,-1.569 0.269,-1.3 0,-1.031 -0.269,-1.3"
+           fill="none" stroke="white" stroke-width="0.03"/>
+  <!-- Edge connector: bottom (between C & D) -->
+  <polygon data-layer="detail"
+           points="0,1.031 0.269,1.3 0,1.569 -0.269,1.3"
+           fill="none" stroke="white" stroke-width="0.03"/>
+  <!-- Edge connector: left (between A & C) -->
+  <polygon data-layer="detail"
+           points="-1.569,0 -1.3,0.269 -1.031,0 -1.3,-0.269"
+           fill="none" stroke="white" stroke-width="0.03"/>
+  <!-- Edge connector: right (between B & D) -->
+  <polygon data-layer="detail"
+           points="1.031,0 1.3,0.269 1.569,0 1.3,-0.269"
+           fill="none" stroke="white" stroke-width="0.03"/>
 
-  <!-- Layer: glow — defines the bounding area for the glow plane (circle) -->
+  <!-- ═══ CENTER DOTS ═══ -->
+  <circle data-layer="center" cx="-0.65" cy="-0.65" r="0.08" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.65"  cy="-0.65" r="0.08" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.65" cy="0.65"  r="0.08" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.65"  cy="0.65"  r="0.08" fill="white" stroke="none"/>
+  <!-- Lattice center dot -->
+  <circle data-layer="center" cx="0" cy="0" r="0.06" fill="white" stroke="none"/>
+
+  <!-- ═══ GLOW — background fill ═══ -->
   <circle data-layer="glow"
-          cx="0" cy="0" r="1.414"
+          cx="0" cy="0" r="1.7"
           fill="white" fill-opacity="0.05" stroke="none"/>
 </svg>
