@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 100" width="140" height="100">
+  <!-- FINAL 1: D body shape + D4 bold weight + D3 dash straps -->
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0095FF"/>
+      <stop offset="100%" stop-color="#D359FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Headset body — D's original curves with D4's stroke weight -->
+  <path d="M12,32 Q12,16 30,14 L55,12 Q70,10 70,10 Q70,10 85,12 L110,14 Q128,16 128,32 L128,58 Q128,74 110,76 L92,78 Q80,80 70,68 Q60,80 48,78 L30,76 Q12,74 12,58 Z"
+        fill="none" stroke="url(#g1)" stroke-width="3.2" stroke-linejoin="round"/>
+
+  <!-- D3-style dash straps -->
+  <line x1="12" y1="40" x2="4" y2="40" stroke="#0095FF" stroke-width="2" opacity="0.35"/>
+  <line x1="12" y1="48" x2="4" y2="48" stroke="#0095FF" stroke-width="2" opacity="0.35"/>
+  <line x1="128" y1="40" x2="136" y2="40" stroke="#D359FF" stroke-width="2" opacity="0.35"/>
+  <line x1="128" y1="48" x2="136" y2="48" stroke="#D359FF" stroke-width="2" opacity="0.35"/>
+
+  <!-- Left lens -->
+  <circle cx="46" cy="44" r="20" fill="none" stroke="#0095FF" stroke-width="2.2" opacity="0.55"/>
+  <!-- D's detailed star + D4's weight -->
+  <g transform="translate(46,44)">
+    <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#0095FF" stroke-width="2.2" opacity="0.9"/>
+    <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#0095FF" stroke-width="2.2" opacity="0.7" transform="rotate(45)"/>
+    <polygon points="0,-8 5.7,-5.7 8,0 5.7,5.7 0,8 -5.7,5.7 -8,0 -5.7,-5.7"
+             fill="none" stroke="#0095FF" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="0" cy="0" r="2.5" fill="#0095FF" opacity="0.7"/>
+  </g>
+
+  <!-- Right lens -->
+  <circle cx="94" cy="44" r="20" fill="none" stroke="#D359FF" stroke-width="2.2" opacity="0.55"/>
+  <g transform="translate(94,44)">
+    <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#D359FF" stroke-width="2.2" opacity="0.9"/>
+    <rect x="-12" y="-12" width="24" height="24" fill="none" stroke="#D359FF" stroke-width="2.2" opacity="0.7" transform="rotate(45)"/>
+    <polygon points="0,-8 5.7,-5.7 8,0 5.7,5.7 0,8 -5.7,5.7 -8,0 -5.7,-5.7"
+             fill="none" stroke="#D359FF" stroke-width="1.2" opacity="0.4"/>
+    <circle cx="0" cy="0" r="2.5" fill="#D359FF" opacity="0.7"/>
+  </g>
+
+  <!-- Nose bridge -->
+  <path d="M64,50 Q70,58 76,50" fill="none" stroke="url(#g1)" stroke-width="1.8" opacity="0.45"/>
+</svg>

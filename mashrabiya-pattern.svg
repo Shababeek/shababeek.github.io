@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.5 -1.5 3 3" width="100" height="100">
+  <!--
+    Mashrabiya Star Pattern — Shababeek Labs
+    ==========================================
+    This SVG defines the geometric pattern used throughout the 3D scene.
+    The 3D site reads this file at runtime and converts the paths into Three.js geometry.
+
+    Coordinate system: centered at (0,0), unit scale = 1
+    The 3D scene multiplies all coordinates by the portal's scale factor.
+
+    To modify the pattern:
+    - Edit the paths/shapes below
+    - The 3D site will pick up changes on next page load
+    - Each <path>/<polygon>/<circle> has a data-layer attribute:
+        "outer"  = primary square (brightest)
+        "star"   = rotated 45° square (medium brightness)
+        "detail" = inner octagon (subtle)
+        "center" = center dot
+        "glow"   = background fill area (very faint)
+
+    Color is applied by the 3D scene per-portal, not from this SVG.
+  -->
+
+  <!-- Layer: outer — axis-aligned square -->
+  <rect data-layer="outer"
+        x="-1" y="-1" width="2" height="2"
+        fill="none" stroke="white" stroke-width="0.08"/>
+
+  <!-- Layer: star — 45° rotated square forming the 8-pointed star -->
+  <polygon data-layer="star"
+           points="0,-1.414 1.414,0 0,1.414 -1.414,0"
+           fill="none" stroke="white" stroke-width="0.08"/>
+
+  <!-- Layer: detail — inner octagon -->
+  <polygon data-layer="detail"
+           points="0.55,0 0.389,0.389 0,0.55 -0.389,0.389 -0.55,0 -0.389,-0.389 0,-0.55 0.389,-0.389"
+           fill="none" stroke="white" stroke-width="0.05"/>
+
+  <!-- Layer: center — center dot -->
+  <circle data-layer="center"
+          cx="0" cy="0" r="0.12"
+          fill="white" stroke="none"/>
+
+  <!-- Layer: glow — defines the bounding area for the glow plane (circle) -->
+  <circle data-layer="glow"
+          cx="0" cy="0" r="1.414"
+          fill="white" fill-opacity="0.05" stroke="none"/>
+</svg>
