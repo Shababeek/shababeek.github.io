@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.669 -1.669 3.338 3.338" width="200" height="200">
+  <!-- Outer squares -->
+  <rect data-layer="outer" x="-1.3" y="-1.3" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
+  <rect data-layer="outer" x="0" y="-1.3" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
+  <rect data-layer="outer" x="-1.3" y="0" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
+  <rect data-layer="outer" x="0" y="0" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Star diamonds -->
+  <polygon data-layer="star" points="-0.65,-1.569 0.269,-0.65 -0.65,0.269 -1.569,-0.65" fill="none" stroke="white" stroke-width="0.06"/>
+  <polygon data-layer="star" points="0.65,-1.569 1.569,-0.65 0.65,0.269 -0.269,-0.65" fill="none" stroke="white" stroke-width="0.06"/>
+  <polygon data-layer="star" points="-0.65,-0.269 0.269,0.65 -0.65,1.569 -1.569,0.65" fill="none" stroke="white" stroke-width="0.06"/>
+  <polygon data-layer="star" points="0.65,-0.269 1.569,0.65 0.65,1.569 -0.269,0.65" fill="none" stroke="white" stroke-width="0.06"/>
+  <!-- Inner octagons -->
+  <polygon data-layer="detail" points="-0.292,-0.65 -0.397,-0.397 -0.65,-0.292 -0.903,-0.397 -1.008,-0.65 -0.903,-0.903 -0.65,-1.008 -0.397,-0.903" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="detail" points="1.008,-0.65 0.903,-0.397 0.65,-0.292 0.397,-0.397 0.293,-0.65 0.397,-0.903 0.65,-1.008 0.903,-0.903" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="detail" points="-0.292,0.65 -0.397,0.903 -0.65,1.008 -0.903,0.903 -1.008,0.65 -0.903,0.397 -0.65,0.293 -0.397,0.397" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="detail" points="1.008,0.65 0.903,0.903 0.65,1.008 0.397,0.903 0.293,0.65 0.397,0.397 0.65,0.293 0.903,0.397" fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Nested inner geometry -->
+  <polygon data-layer="detail" points="-0.489,-0.65 -0.536,-0.536 -0.65,-0.489 -0.764,-0.536 -0.811,-0.65 -0.764,-0.764 -0.65,-0.811 -0.536,-0.764" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="-0.65,-0.855 -0.445,-0.65 -0.65,-0.445 -0.855,-0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0.811,-0.65 0.764,-0.536 0.65,-0.489 0.536,-0.536 0.489,-0.65 0.536,-0.764 0.65,-0.811 0.764,-0.764" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0.65,-0.855 0.855,-0.65 0.65,-0.445 0.445,-0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="-0.489,0.65 -0.536,0.764 -0.65,0.811 -0.764,0.764 -0.811,0.65 -0.764,0.536 -0.65,0.489 -0.536,0.536" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="-0.65,0.445 -0.445,0.65 -0.65,0.855 -0.855,0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0.811,0.65 0.764,0.764 0.65,0.811 0.536,0.764 0.489,0.65 0.536,0.536 0.65,0.489 0.764,0.536" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0.65,0.445 0.855,0.65 0.65,0.855 0.445,0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <!-- Lattice connectors -->
+  <polygon data-layer="detail" points="0,-0.381 0.381,0 0,0.381 -0.381,0" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="detail" points="0,-0.919 0.269,-0.65 0,-0.381 -0.269,-0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0,0.381 0.269,0.65 0,0.919 -0.269,0.65" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="-0.65,-0.269 -0.381,0 -0.65,0.269 -0.919,0" fill="none" stroke="white" stroke-width="0.03"/>
+  <polygon data-layer="detail" points="0.65,-0.269 0.919,0 0.65,0.269 0.381,0" fill="none" stroke="white" stroke-width="0.03"/>
+  <!-- Center dots -->
+  <circle data-layer="center" cx="-0.65" cy="-0.65" r="0.078" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.65" cy="-0.65" r="0.078" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.65" cy="0.65" r="0.078" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.65" cy="0.65" r="0.078" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0" cy="0" r="0.059" fill="white" stroke="none"/>
+  <circle data-layer="glow" cx="0" cy="0" r="1.586" fill="white" fill-opacity="0.05" stroke="none"/>
+</svg>

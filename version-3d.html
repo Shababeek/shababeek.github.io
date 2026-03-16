@@ -841,13 +841,15 @@
             Object.keys(patternLayers).forEach(layerName => {
                 const opacity = LAYER_OPACITY[layerName] || 0.3;
                 patternLayers[layerName].forEach(shape => {
-                    if (shape.type === 'glow') {
-                        // Glow plane — filled circle
+                    if (layerName === 'glow') {
+                        // Glow plane — filled shape (works with both circle and rect glow)
                         const glowMat = new THREE.MeshBasicMaterial({
                             color, transparent: true, opacity: 0.03, side: THREE.DoubleSide
                         });
+                        const radius = shape.radius || (shape.points.length > 0 ?
+                            Math.max(...shape.points.map(p => Math.sqrt(p.x * p.x + p.y * p.y))) : 1.5);
                         const glowPlane = new THREE.Mesh(
-                            new THREE.CircleGeometry(shape.radius * scale, 16),
+                            new THREE.CircleGeometry(radius * scale, 16),
                             glowMat
                         );
                         glowPlane.userData.layer = layerName;

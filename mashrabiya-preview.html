@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shababeek Labs — Mashrabiya Pattern Shootout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a14; color: #e0e8f0; font-family: 'Space Grotesk', sans-serif; padding: 40px; }
+        h1 { font-family: 'Orbitron', monospace; font-size: 28px; background: linear-gradient(135deg, #0095FF, #D359FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        .subtitle { color: #7B8DA6; margin-bottom: 16px; }
+        .divider { font-family: 'Orbitron', monospace; font-size: 14px; color: #FF6B35; text-transform: uppercase; letter-spacing: 2px; margin: 40px 0 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,107,53,0.2); }
+
+        .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .row.two { grid-template-columns: 1fr 1fr; }
+        .card { padding: 28px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; text-align: center; transition: border-color 0.3s; }
+        .card:hover { border-color: rgba(0,149,255,0.3); }
+        .card.current { border-color: rgba(0,149,255,0.25); background: rgba(0,149,255,0.03); }
+        .label { font-family: 'Orbitron', monospace; font-size: 13px; color: #0095FF; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+        .desc { font-size: 13px; color: #7B8DA6; margin-bottom: 18px; line-height: 1.5; min-height: 56px; }
+        .tag { display: inline-block; padding: 3px 10px; background: rgba(211,89,255,0.12); border: 1px solid rgba(211,89,255,0.25); border-radius: 12px; font-size: 11px; color: #D359FF; margin-bottom: 14px; }
+        .tag.active { background: rgba(0,149,255,0.12); border-color: rgba(0,149,255,0.25); color: #0095FF; }
+        .tag.grid { background: rgba(255,107,53,0.12); border-color: rgba(255,107,53,0.25); color: #FF6B35; }
+
+        /* Large preview */
+        .preview-main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+            height: 140px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Multi-size row */
+        .sizes { display: flex; justify-content: center; align-items: flex-end; gap: 20px; margin-bottom: 16px; }
+        .si { text-align: center; }
+        .si img { display: block; margin: 0 auto 4px; }
+        .si span { font-size: 10px; color: #7B8DA6; }
+
+        /* Color tint previews */
+        .color-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 14px; }
+        .color-item {
+            width: 56px; height: 56px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .color-item span { position: absolute; bottom: 3px; font-size: 9px; color: #7B8DA6; }
+
+        .file-name {
+            font-size: 11px; color: #7B8DA6; font-family: monospace;
+            background: rgba(255,255,255,0.04); padding: 4px 10px;
+            border-radius: 4px; display: inline-block;
+        }
+
+        /* SVG color filters */
+        .tint-blue { filter: brightness(0) saturate(100%) invert(42%) sepia(98%) saturate(2000%) hue-rotate(195deg) brightness(105%); }
+        .tint-violet { filter: brightness(0) saturate(100%) invert(45%) sepia(80%) saturate(3000%) hue-rotate(265deg) brightness(110%); }
+        .tint-orange { filter: brightness(0) saturate(100%) invert(50%) sepia(90%) saturate(2000%) hue-rotate(350deg) brightness(105%); }
+
+        /* Comparison section */
+        .compare-section {
+            margin-top: 40px; padding: 30px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+        }
+        .compare-section h2 { font-family: 'Orbitron', monospace; font-size: 16px; color: #D359FF; margin-bottom: 24px; }
+        .compare-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .compare-item { text-align: center; }
+        .compare-box {
+            width: 100px; height: 100px;
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 6px;
+        }
+        .compare-label { font-size: 11px; color: #7B8DA6; font-family: 'Orbitron', monospace; letter-spacing: 1px; }
+
+        /* Portal mockup */
+        .portal-section {
+            margin-top: 40px; padding: 30px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+        }
+        .portal-section h2 { font-family: 'Orbitron', monospace; font-size: 16px; color: #0095FF; margin-bottom: 8px; }
+        .portal-section .sub { font-size: 13px; color: #7B8DA6; margin-bottom: 24px; }
+        .portal-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .portal-item { text-align: center; }
+        .portal-frame {
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(0,149,255,0.06) 0%, transparent 70%);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .portal-frame.violet { background: radial-gradient(circle, rgba(211,89,255,0.06) 0%, transparent 70%); }
+        .portal-frame.orange { background: radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%); }
+        .portal-label { font-size: 11px; color: #7B8DA6; }
+
+        @media (max-width: 900px) { .row { grid-template-columns: 1fr; } .row.two { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <h1>Mashrabiya Pattern Shootout</h1>
+    <p class="subtitle">All pattern variations side by side — pick the one that feels right for the 3D portals</p>
+
+    <!-- Current -->
+    <div class="divider">Current Pattern</div>
+    <div class="row" style="grid-template-columns: 1fr;">
+        <div class="card current" style="max-width: 440px;">
+            <div class="label">2x2 Lattice</div>
+            <div class="tag active">Currently on site</div>
+            <div class="desc">4 interconnected 8-pointed stars. Shared edges create the classic mashrabiya lattice with connector diamonds at intersections.</div>
+            <div class="preview-main"><img src="mashrabiya-pattern.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-pattern.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-pattern.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-pattern.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-pattern.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-pattern.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-pattern.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-pattern.svg</span>
+        </div>
+    </div>
+
+    <!-- Grid density variations -->
+    <div class="divider">Grid Density</div>
+    <div class="row">
+        <div class="card">
+            <div class="label">3x3 Grid</div>
+            <div class="tag grid">9 stars</div>
+            <div class="desc">Odd grid = a focal star dead-center surrounded by 8 neighbors. Nice visual balance.</div>
+            <div class="preview-main"><img src="mashrabiya-3x3.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-3x3.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-3x3.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-3x3.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-3x3.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-3x3.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-3x3.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-3x3.svg</span>
+        </div>
+        <div class="card">
+            <div class="label">4x4 Classic</div>
+            <div class="tag grid">16 stars</div>
+            <div class="desc">Dense 16-star grid. Maximum intricacy — 9 interior connector diamonds. Great for large portal frames.</div>
+            <div class="preview-main"><img src="mashrabiya-4x4.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-4x4.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-4x4.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-4x4.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-4x4.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-4x4.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-4x4.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-4x4.svg</span>
+        </div>
+        <div class="card">
+            <div class="label">4x4 Square Glow</div>
+            <div class="tag grid">16 stars + square bg</div>
+            <div class="desc">Same dense 4x4 grid but with a square glow backdrop instead of circle. Sharper, more architectural.</div>
+            <div class="preview-main"><img src="mashrabiya-4x4-square.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-4x4-square.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-4x4-square.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-4x4-square.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-4x4-square.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-4x4-square.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-4x4-square.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-4x4-square.svg</span>
+        </div>
+    </div>
+
+    <!-- Style variations -->
+    <div class="divider">Style Variations</div>
+    <div class="row">
+        <div class="card">
+            <div class="label">Square Glow</div>
+            <div class="tag">2x2 + square bg</div>
+            <div class="desc">2x2 lattice with square glow instead of circular. More geometric, harder edges on the backdrop.</div>
+            <div class="preview-main"><img src="mashrabiya-square-glow.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-square-glow.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-square-glow.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-square-glow.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-square-glow.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-square-glow.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-square-glow.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-square-glow.svg</span>
+        </div>
+        <div class="card">
+            <div class="label">Pure Lattice</div>
+            <div class="tag">No outer squares</div>
+            <div class="desc">Outer squares removed — just the overlapping diamonds, octagons, and connectors. Lighter, more airy, the lattice speaks for itself.</div>
+            <div class="preview-main"><img src="mashrabiya-lattice.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-lattice.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-lattice.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-lattice.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-lattice.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-lattice.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-lattice.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-lattice.svg</span>
+        </div>
+        <div class="card">
+            <div class="label">Ornate / Nested</div>
+            <div class="tag">Double detail</div>
+            <div class="desc">A smaller octagon + diamond nested inside each star. More traditional ornate feel — extra layer of intricacy.</div>
+            <div class="preview-main"><img src="mashrabiya-ornate.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-ornate.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-ornate.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-ornate.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-ornate.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-ornate.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-ornate.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-ornate.svg</span>
+        </div>
+    </div>
+
+    <!-- Hex -->
+    <div class="row" style="grid-template-columns: 1fr;">
+        <div class="card" style="max-width: 440px;">
+            <div class="label">Hexagonal Stars</div>
+            <div class="tag">6-pointed</div>
+            <div class="desc">Two overlapping triangles instead of two overlapping squares. A different mashrabiya tradition — Star-of-David geometry, common in North African and Andalusian Islamic art.</div>
+            <div class="preview-main"><img src="mashrabiya-hex.svg" width="120" height="120"></div>
+            <div class="sizes">
+                <div class="si"><img src="mashrabiya-hex.svg" width="80" height="80"><span>80px</span></div>
+                <div class="si"><img src="mashrabiya-hex.svg" width="48" height="48"><span>48px</span></div>
+                <div class="si"><img src="mashrabiya-hex.svg" width="28" height="28"><span>28px</span></div>
+            </div>
+            <div class="color-row">
+                <div class="color-item"><img src="mashrabiya-hex.svg" width="38" height="38" class="tint-blue"><span>blue</span></div>
+                <div class="color-item"><img src="mashrabiya-hex.svg" width="38" height="38" class="tint-violet"><span>violet</span></div>
+                <div class="color-item"><img src="mashrabiya-hex.svg" width="38" height="38" class="tint-orange"><span>orange</span></div>
+            </div>
+            <span class="file-name">mashrabiya-hex.svg</span>
+        </div>
+    </div>
+
+    <!-- Side-by-side comparison -->
+    <div class="compare-section">
+        <h2>// Side-by-Side at Same Size</h2>
+        <div class="compare-row">
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-pattern.svg" width="80" height="80"></div>
+                <div class="compare-label">2x2</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-3x3.svg" width="80" height="80"></div>
+                <div class="compare-label">3x3</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-4x4.svg" width="80" height="80"></div>
+                <div class="compare-label">4x4</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-lattice.svg" width="80" height="80"></div>
+                <div class="compare-label">Lattice</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-ornate.svg" width="80" height="80"></div>
+                <div class="compare-label">Ornate</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-hex.svg" width="80" height="80"></div>
+                <div class="compare-label">Hex</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-square-glow.svg" width="80" height="80"></div>
+                <div class="compare-label">Sq Glow</div>
+            </div>
+            <div class="compare-item">
+                <div class="compare-box"><img src="mashrabiya-4x4-square.svg" width="80" height="80"></div>
+                <div class="compare-label">4x4 Sq</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Portal mockup -->
+    <div class="portal-section">
+        <h2>// As 3D Portal Frames</h2>
+        <p class="sub">How each pattern would look as a floating portal in the 3D scene (simulated glow)</p>
+        <div class="portal-row">
+            <div class="portal-item">
+                <div class="portal-frame"><img src="mashrabiya-pattern.svg" width="110" height="110" class="tint-blue"></div>
+                <div class="portal-label">2x2 — Blue</div>
+            </div>
+            <div class="portal-item">
+                <div class="portal-frame violet"><img src="mashrabiya-3x3.svg" width="110" height="110" class="tint-violet"></div>
+                <div class="portal-label">3x3 — Violet</div>
+            </div>
+            <div class="portal-item">
+                <div class="portal-frame"><img src="mashrabiya-4x4.svg" width="110" height="110" class="tint-blue"></div>
+                <div class="portal-label">4x4 — Blue</div>
+            </div>
+            <div class="portal-item">
+                <div class="portal-frame orange"><img src="mashrabiya-ornate.svg" width="110" height="110" class="tint-orange"></div>
+                <div class="portal-label">Ornate — Orange</div>
+            </div>
+            <div class="portal-item">
+                <div class="portal-frame violet"><img src="mashrabiya-lattice.svg" width="110" height="110" class="tint-violet"></div>
+                <div class="portal-label">Lattice — Violet</div>
+            </div>
+            <div class="portal-item">
+                <div class="portal-frame"><img src="mashrabiya-hex.svg" width="110" height="110" class="tint-blue"></div>
+                <div class="portal-label">Hex — Blue</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

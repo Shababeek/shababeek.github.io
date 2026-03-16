@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.568 -1.568 3.136 3.136" width="200" height="200">
+  <!-- Outer squares -->
+  <rect data-layer="outer" x="-1.29" y="-1.29" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="-0.43" y="-1.29" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="0.43" y="-1.29" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="-1.29" y="-0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="-0.43" y="-0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="0.43" y="-0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="-1.29" y="0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="-0.43" y="0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <rect data-layer="outer" x="0.43" y="0.43" width="0.86" height="0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Star diamonds -->
+  <polygon data-layer="star" points="-0.86,-1.468 -0.252,-0.86 -0.86,-0.252 -1.468,-0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0,-1.468 0.608,-0.86 0,-0.252 -0.608,-0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0.86,-1.468 1.468,-0.86 0.86,-0.252 0.252,-0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="-0.86,-0.608 -0.252,0 -0.86,0.608 -1.468,0" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0,-0.608 0.608,0 0,0.608 -0.608,0" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0.86,-0.608 1.468,0 0.86,0.608 0.252,0" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="-0.86,0.252 -0.252,0.86 -0.86,1.468 -1.468,0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0,0.252 0.608,0.86 0,1.468 -0.608,0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <polygon data-layer="star" points="0.86,0.252 1.468,0.86 0.86,1.468 0.252,0.86" fill="none" stroke="white" stroke-width="0.04"/>
+  <!-- Inner octagons -->
+  <polygon data-layer="detail" points="-0.623,-0.86 -0.693,-0.693 -0.86,-0.623 -1.027,-0.693 -1.096,-0.86 -1.027,-1.027 -0.86,-1.096 -0.693,-1.027" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="0.237,-0.86 0.167,-0.693 0,-0.623 -0.167,-0.693 -0.237,-0.86 -0.167,-1.027 0,-1.096 0.167,-1.027" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="1.097,-0.86 1.027,-0.693 0.86,-0.623 0.693,-0.693 0.624,-0.86 0.693,-1.027 0.86,-1.096 1.027,-1.027" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="-0.623,0 -0.693,0.167 -0.86,0.237 -1.027,0.167 -1.096,0 -1.027,-0.167 -0.86,-0.237 -0.693,-0.167" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="0.237,0 0.167,0.167 0,0.237 -0.167,0.167 -0.237,0 -0.167,-0.167 0,-0.237 0.167,-0.167" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="1.097,0 1.027,0.167 0.86,0.237 0.693,0.167 0.624,0 0.693,-0.167 0.86,-0.237 1.027,-0.167" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="-0.623,0.86 -0.693,1.027 -0.86,1.097 -1.027,1.027 -1.096,0.86 -1.027,0.693 -0.86,0.624 -0.693,0.693" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="0.237,0.86 0.167,1.027 0,1.097 -0.167,1.027 -0.237,0.86 -0.167,0.693 0,0.624 0.167,0.693" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="1.097,0.86 1.027,1.027 0.86,1.097 0.693,1.027 0.624,0.86 0.693,0.693 0.86,0.624 1.027,0.693" fill="none" stroke="white" stroke-width="0.026"/>
+  <!-- Lattice connectors -->
+  <polygon data-layer="detail" points="-0.43,-0.682 -0.178,-0.43 -0.43,-0.178 -0.682,-0.43" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="0.43,-0.682 0.682,-0.43 0.43,-0.178 0.178,-0.43" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="-0.43,0.178 -0.178,0.43 -0.43,0.682 -0.682,0.43" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="0.43,0.178 0.682,0.43 0.43,0.682 0.178,0.43" fill="none" stroke="white" stroke-width="0.026"/>
+  <polygon data-layer="detail" points="-0.43,-1.038 -0.252,-0.86 -0.43,-0.682 -0.608,-0.86" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="-0.43,0.682 -0.252,0.86 -0.43,1.038 -0.608,0.86" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="0.43,-1.038 0.608,-0.86 0.43,-0.682 0.252,-0.86" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="0.43,0.682 0.608,0.86 0.43,1.038 0.252,0.86" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="-0.86,-0.608 -0.682,-0.43 -0.86,-0.252 -1.038,-0.43" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="0.86,-0.608 1.038,-0.43 0.86,-0.252 0.682,-0.43" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="-0.86,0.252 -0.682,0.43 -0.86,0.608 -1.038,0.43" fill="none" stroke="white" stroke-width="0.02"/>
+  <polygon data-layer="detail" points="0.86,0.252 1.038,0.43 0.86,0.608 0.682,0.43" fill="none" stroke="white" stroke-width="0.02"/>
+  <!-- Center dots -->
+  <circle data-layer="center" cx="-0.86" cy="-0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0" cy="-0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.86" cy="-0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.86" cy="0" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0" cy="0" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.86" cy="0" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.86" cy="0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0" cy="0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.86" cy="0.86" r="0.052" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.43" cy="-0.43" r="0.039" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.43" cy="-0.43" r="0.039" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="-0.43" cy="0.43" r="0.039" fill="white" stroke="none"/>
+  <circle data-layer="center" cx="0.43" cy="0.43" r="0.039" fill="white" stroke="none"/>
+  <circle data-layer="glow" cx="0" cy="0" r="1.49" fill="white" fill-opacity="0.05" stroke="none"/>
+</svg>
