@@ -1280,9 +1280,56 @@
         let currentSection = 0;
         let scrollProgress = 0;
         let smoothProgress = 0;
+        let lastScrollProgress = 0;
+        let scrollDirection = 1; // 1 = down, -1 = up
+        let scrollTimer = null;
+        let isSnapping = false;
         const panels = document.querySelectorAll('.content-panel');
         const dots = document.querySelectorAll('.section-dot');
         const scrollHint = document.getElementById('scrollHint');
+
+        // Detect scroll stop and snap to nearest section in scroll direction
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
+            const progress = Math.max(0, Math.min(1, scrollTop / scrollMax));
+
+            // Track scroll direction
+            if (progress > lastScrollProgress + 0.001) {
+                scrollDirection = 1;
+            } else if (progress < lastScrollProgress - 0.001) {
+                scrollDirection = -1;
+            }
+            lastScrollProgress = progress;
+
+            // Reset snapping flag when user scrolls manually
+            isSnapping = false;
+
+            // Clear previous snap timer
+            if (scrollTimer) clearTimeout(scrollTimer);
+
+            // After user stops scrolling for 150ms, snap to nearest section
+            scrollTimer = setTimeout(function() {
+                if (isSnapping) return;
+                const sectionFloat = progress * (NUM_SECTIONS - 1);
+                const fraction = sectionFloat - Math.floor(sectionFloat);
+
+                // Only snap if we're between sections (not already on one)
+                if (fraction < 0.05 || fraction > 0.95) return;
+
+                // Snap in the scroll direction
+                let targetSection;
+                if (scrollDirection > 0) {
+                    targetSection = Math.ceil(sectionFloat);
+                } else {
+                    targetSection = Math.floor(sectionFloat);
+                }
+                targetSection = Math.max(0, Math.min(NUM_SECTIONS - 1, targetSection));
+
+                isSnapping = true;
+                scrollToSection(targetSection);
+            }, 150);
+        });
 
         function updateSections(progress) {
             const sectionFloat = progress * (NUM_SECTIONS - 1);
