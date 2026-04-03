@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shababeek Labs — The Office</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: auto; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #121212;
+            color: #f0ece4;
+            overflow-x: hidden;
+        }
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+        }
+        #scroll-spacer { height: 800vh; position: relative; z-index: 0; }
+
+        /* Content panels — positioned in 3D space via JS projection */
+        .content-panel {
+            position: fixed;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3; pointer-events: none; opacity: 0;
+            transition: opacity 0.3s ease-out;
+            transform-origin: center center;
+            will-change: transform, opacity, left, top;
+        }
+        .content-panel.active { pointer-events: auto; }
+        .panel-inner {
+            max-width: 420px; width: max-content; min-width: 300px;
+            background: rgba(18,18,18,0.88);
+            backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 30px;
+            position: relative; overflow: hidden;
+        }
+        .panel-inner::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, transparent, #D94B3A, #8BC34A, transparent);
+            border-radius: 24px 24px 0 0;
+            opacity: 0.7;
+        }
+        .panel-inner.accent-red::before { background: linear-gradient(90deg, transparent, #D94B3A, #E07B6E, transparent); }
+        .panel-inner.accent-green::before { background: linear-gradient(90deg, transparent, #8BC34A, #D94B3A, transparent); }
+
+        /* Connector line from panel to anchor */
+        .panel-connector {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2; pointer-events: none;
+        }
+
+        /* Hero panel is centered and bigger */
+        .hero-panel .panel-inner { max-width: 500px; text-align: center; }
+
+        /* Typography */
+        h1 { font-family: 'Rubik', sans-serif; font-size: clamp(26px, 4vw, 44px); font-weight: 900; line-height: 1.2; margin-bottom: 14px; background: linear-gradient(135deg, #D94B3A, #8BC34A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-family: 'Rubik', sans-serif; font-size: clamp(20px, 3vw, 28px); font-weight: 800; margin-bottom: 16px; background: linear-gradient(135deg, #D94B3A, #8BC34A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h3 { font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+        .section-text { font-size: 15px; line-height: 1.7; opacity: 0.85; margin-bottom: 12px; }
+        .hero-tagline { font-size: 14px; color: #9e9a90; font-style: italic; margin-bottom: 10px; }
+
+        .cta-button {
+            display: inline-block; padding: 12px 28px;
+            background: linear-gradient(135deg, #D94B3A, #8BC34A);
+            color: white; font-family: 'Rubik', sans-serif; font-size: 13px;
+            font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+            text-decoration: none; border: none; border-radius: 50px; cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-button:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 6px 24px rgba(217,75,58,0.3); }
+
+        /* Hero logo */
+        .hero-logo-img {
+            width: 140px; height: auto; margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(217,75,58,0.3)) drop-shadow(0 0 40px rgba(139,195,74,0.2));
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+        @keyframes logoPulse {
+            0%,100% { filter: drop-shadow(0 0 20px rgba(217,75,58,0.3)) drop-shadow(0 0 40px rgba(139,195,74,0.2)); }
+            50% { filter: drop-shadow(0 0 35px rgba(217,75,58,0.5)) drop-shadow(0 0 60px rgba(139,195,74,0.4)); }
+        }
+
+        /* Services mini grid */
+        .services-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .svc-item { padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; font-size: 13px; }
+        .svc-item strong { color: #8BC34A; font-family: 'Rubik', sans-serif; font-size: 12px; font-weight: 700; display: block; margin-bottom: 3px; }
+
+        /* Project meta */
+        .project-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+        .meta-item { padding: 5px 12px; background: rgba(217,75,58,0.1); border: 1px solid rgba(217,75,58,0.18); border-radius: 12px; font-size: 12px; }
+        .meta-item strong { color: #D94B3A; }
+
+        /* Team mini */
+        .team-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+        .tm { display: flex; gap: 8px; align-items: center; padding: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+        .tm-avatar { width: 34px; height: 34px; border-radius: 12px; background: linear-gradient(135deg, #D94B3A, #8BC34A); display: flex; align-items: center; justify-content: center; font-family: 'Rubik', sans-serif; font-size: 11px; font-weight: 700; flex-shrink: 0; color: #fff; }
+        .tm-name { font-size: 12px; font-weight: 600; }
+        .tm-role { font-size: 10px; color: #8BC34A; }
+
+        /* Blog mini */
+        .blog-mini { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+        .blog-item { padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; }
+        .blog-item h4 { font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+        .blog-item p { font-size: 12px; color: #9e9a90; }
+        .blog-item a { color: #8BC34A; font-size: 12px; text-decoration: none; font-weight: 600; }
+
+        /* Contact form compact */
+        .contact-compact { margin-top: 14px; }
+        .contact-compact .ci { margin-bottom: 10px; font-size: 13px; }
+        .contact-compact .ci strong { color: #D94B3A; font-size: 11px; display: block; font-family: 'Rubik', sans-serif; font-weight: 700; letter-spacing: 0.5px; }
+        .contact-compact a { color: #8BC34A; text-decoration: none; }
+
+        /* Nav */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 28px;
+            background: rgba(18,18,18,0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #f0ece4; cursor: pointer; }
+        .nav-logo img { height: 32px; width: auto; }
+        .nav-logo span { font-family: 'Rubik', sans-serif; font-weight: 900; font-size: 14px; letter-spacing: 1.5px; background: linear-gradient(135deg, #D94B3A, #8BC34A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; gap: 18px; }
+        .nav-links a { color: #9e9a90; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: color 0.3s; font-weight: 500; }
+        .nav-links a:hover { color: #D94B3A; }
+
+        /* Section dots */
+        .section-dots {
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%); z-index: 50;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .section-dot {
+            width: 10px; height: 10px; border-radius: 4px;
+            border: 1.5px solid #9e9a90; background: transparent;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .section-dot.active { background: #D94B3A; border-color: #D94B3A; box-shadow: 0 0 10px rgba(217,75,58,0.5); border-radius: 4px; }
+
+        /* Scroll hint */
+        .scroll-hint {
+            position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%);
+            z-index: 10; text-align: center; animation: bob 2s ease-in-out infinite;
+            transition: opacity 0.5s;
+        }
+        .scroll-hint.hidden { opacity: 0; pointer-events: none; }
+        .scroll-hint span { display: block; font-size: 12px; color: #9e9a90; letter-spacing: 2px; text-transform: uppercase; font-family: 'Rubik', sans-serif; font-weight: 600; }
+        @keyframes bob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-8px); } }
+
+        footer {
+            position: fixed; bottom: 0; left: 0; right: 0; text-align: center;
+            padding: 10px; font-size: 11px; color: #9e9a90; z-index: 5; pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .services-mini, .team-mini { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div id="scroll-spacer"></div>
+
+<!-- Navigation -->
+<nav>
+    <a class="nav-logo" onclick="scrollToSection(0)">
+        <img src="logo-brand.svg" alt="Shababeek Labs">
+        <span>SHABABEEK LABS</span>
+    </a>
+    <div class="nav-links">
+        <a onclick="scrollToSection(0)">Lobby</a>
+        <a onclick="scrollToSection(1)">About</a>
+        <a onclick="scrollToSection(2)">Services</a>
+        <a onclick="scrollToSection(3)">Gallery</a>
+        <a onclick="scrollToSection(4)">Team</a>
+        <a onclick="scrollToSection(5)">Lab</a>
+        <a onclick="scrollToSection(6)">Contact</a>
+    </div>
+</nav>
+
+<!-- Section dots (square-ish to echo window shapes) -->
+<div class="section-dots">
+    <div class="section-dot active" onclick="scrollToSection(0)" title="Lobby"></div>
+    <div class="section-dot" onclick="scrollToSection(1)" title="About"></div>
+    <div class="section-dot" onclick="scrollToSection(2)" title="Services"></div>
+    <div class="section-dot" onclick="scrollToSection(3)" title="Gallery"></div>
+    <div class="section-dot" onclick="scrollToSection(4)" title="Team"></div>
+    <div class="section-dot" onclick="scrollToSection(5)" title="Lab"></div>
+    <div class="section-dot" onclick="scrollToSection(6)" title="Contact"></div>
+</div>
+
+<div class="scroll-hint" id="scrollHint">
+    <span>&#8595; Walk Through The Office &#8595;</span>
+</div>
+
+<!-- Connector lines SVG overlay -->
+<svg class="panel-connector" id="connectorSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+
+<!-- SECTION 0: Lobby / Hero -->
+<div class="content-panel hero-panel active" data-section="0" data-anchor="0,3,5">
+    <div class="panel-inner" style="text-align:center;">
+        <img src="logo-brand.svg" alt="Shababeek Labs" class="hero-logo-img">
+        <h1>Welcome to<br>Shababeek Labs</h1>
+        <p class="hero-tagline">"Shababeek" means Windows in Arabic.</p>
+        <p class="section-text">Walk through our office. Each room tells part of our story.</p>
+        <button class="cta-button" onclick="scrollToSection(1)">Enter &#8594;</button>
+    </div>
+</div>
+
+<!-- SECTION 1: About — Display wall -->
+<div class="content-panel" data-section="1" data-anchor="8,2.5,-6">
+    <div class="panel-inner">
+        <h2>Who We Are</h2>
+        <p class="section-text">We're Shababeek Labs — a small team from Egypt building VR stuff we actually care about. Games, training sims, AR events, education, metaverse worlds — if it involves putting on a headset and going somewhere else, we're probably already building it.</p>
+        <p class="section-text">Based in Egypt with presence in the UAE. Five people who think VR is cooler than reality.</p>
+    </div>
+</div>
+
+<!-- SECTION 2: Services — Display pedestals -->
+<div class="content-panel" data-section="2" data-anchor="-3,2.5,-16">
+    <div class="panel-inner">
+        <h2>What We Do</h2>
+        <div class="services-mini">
+            <div class="svc-item"><strong>VR Games</strong>Immersive experiences, dark comedies, puzzle worlds</div>
+            <div class="svc-item"><strong>Training Sims</strong>Practice dangerous tasks without the danger</div>
+            <div class="svc-item"><strong>AR/VR Events</strong>Brand activations people actually remember</div>
+            <div class="svc-item"><strong>EdTech XR</strong>Learning faster than slides ever could</div>
+        </div>
+        <div class="svc-item" style="margin-top:10px;"><strong>Metaverse & Social VR</strong>Virtual worlds people actually want to hang out in</div>
+    </div>
+</div>
+
+<!-- SECTION 3: Featured Project — Gallery wall -->
+<div class="content-panel" data-section="3" data-anchor="8,3,-26">
+    <div class="panel-inner accent-red">
+        <h2>Gallery Wall</h2>
+        <h3 style="color:#D94B3A;">Good Morning, { employee name }</h3>
+        <div class="project-meta">
+            <div class="meta-item"><strong>Genre:</strong> VR Dark Comedy</div>
+            <div class="meta-item"><strong>Platform:</strong> Meta Quest & PCVR</div>
+            <div class="meta-item"><strong>Status:</strong> In Development</div>
+        </div>
+        <p class="section-text">A dark comedy VR experience set in a corporate office that shouldn't exist. Cassette futurism meets workplace horror. 12 days of existential office weirdness.</p>
+        <a href="blog-good-morning.html" class="cta-button" style="background: linear-gradient(135deg, #D94B3A, #E07B6E);">Read Dev Blog</a>
+    </div>
+</div>
+
+<!-- SECTION 4: Team — Meeting table -->
+<div class="content-panel" data-section="4" data-anchor="-3,2,-37">
+    <div class="panel-inner accent-green">
+        <h2>The Crew</h2>
+        <div class="team-mini">
+            <div class="tm"><div class="tm-avatar">AA</div><div><div class="tm-name">Ahmad Abdallah</div><div class="tm-role">Co-Founder & Tech Lead</div></div></div>
+            <div class="tm"><div class="tm-avatar">KS</div><div><div class="tm-name">Khaled Shemy</div><div class="tm-role">Co-Founder & Business</div></div></div>
+            <div class="tm"><div class="tm-avatar">KH</div><div><div class="tm-name">Karim Haddad</div><div class="tm-role">Technical Artist</div></div></div>
+            <div class="tm"><div class="tm-avatar">MA</div><div><div class="tm-name">Mohammed Alaa</div><div class="tm-role">Lead XR Developer</div></div></div>
+        </div>
+        <div class="tm" style="margin-top:8px;"><div class="tm-avatar">HA</div><div><div class="tm-name">Hassan Al Sayed</div><div class="tm-role">Junior Unity Developer</div></div></div>
+    </div>
+</div>
+
+<!-- SECTION 5: Blog — Lab / workstations -->
+<div class="content-panel" data-section="5" data-anchor="5,2,-49">
+    <div class="panel-inner accent-green">
+        <h2>From the Lab</h2>
+        <div class="blog-mini">
+            <div class="blog-item"><h4>VR Training Works</h4><p>Why simulation beats lecture in industrial training.</p><a href="blog-vr-training.html">Read &#8594;</a></div>
+            <div class="blog-item"><h4>Good Morning, { employee name }</h4><p>Behind the scenes of corporate absurdism in VR.</p><a href="blog-good-morning.html">Read &#8594;</a></div>
+            <div class="blog-item"><h4>The Future of XR</h4><p>Where spatial computing is heading for creators.</p><a href="blog-future-xr.html">Read &#8594;</a></div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 6: Contact — Reception desk -->
+<div class="content-panel" data-section="6" data-anchor="0,2.5,-58">
+    <div class="panel-inner" style="text-align:center;">
+        <h2>Reception</h2>
+        <p class="section-text">Ready to build something? Drop us a line.</p>
+        <div class="contact-compact">
+            <div class="ci"><strong>Email</strong><a href="mailto:info@shababeeklabs.com">info@shababeeklabs.com</a></div>
+            <div class="ci"><strong>Schedule</strong><a href="https://calendly.com">Book on Calendly</a></div>
+            <div class="ci"><strong>Locations</strong>Egypt & UAE</div>
+        </div>
+        <a href="mailto:info@shababeeklabs.com" class="cta-button" style="margin-top:16px;">Send Message</a>
+    </div>
+</div>
+
+<footer>&copy; 2026 Shababeek Labs. Windows into other realities.</footer>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ════════════════════════════════════
+// SCENE SETUP
+// ════════════════════════════════════
+var canvas = document.getElementById('bg-canvas');
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x121212, 1);
+renderer.shadowMap.enabled = false;
+
+var scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x121212, 0.022);
+
+var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
+
+// ═══ NEW PALETTE ═══
+var COL_RED    = 0xD94B3A;
+var COL_GREEN  = 0x8BC34A;
+var COL_DARK   = 0x1A1A1A;
+var COL_MUTED  = 0x6B6560;
+var COL_WARM   = 0x3A2E28; // warm dark accent
+
+// ════════════════════════════════════
+// MATERIALS
+// ════════════════════════════════════
+function edgeMat(color, opacity) {
+    return new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: opacity || 0.4 });
+}
+function glowMat(color, opacity) {
+    return new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: opacity || 0.06, side: THREE.DoubleSide });
+}
+
+// ════════════════════════════════════
+// ROOM GEOMETRY HELPERS
+// ════════════════════════════════════
+function wireBox(w, h, d, color, opacity) {
+    var geo = new THREE.BoxGeometry(w, h, d);
+    var edges = new THREE.EdgesGeometry(geo);
+    return new THREE.LineSegments(edges, edgeMat(color, opacity || 0.3));
+}
+
+function solidPlane(w, h, color, opacity) {
+    var geo = new THREE.PlaneGeometry(w, h);
+    return new THREE.Mesh(geo, glowMat(color, opacity));
+}
+
+function wireCircle(r, segs, color, opacity) {
+    var pts = [];
+    for (var i = 0; i <= segs; i++) {
+        var a = (Math.PI * 2 / segs) * i;
+        pts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r));
+    }
+    var geo = new THREE.BufferGeometry().setFromPoints(pts);
+    return new THREE.Line(geo, edgeMat(color, opacity || 0.25));
+}
+
+// ═══ ROUNDED RECTANGLE (window shape motif) ═══
+function createRoundedRect(w, h, r, segments) {
+    segments = segments || 6;
+    var pts = [];
+    // Top-right corner
+    for (var i = 0; i <= segments; i++) {
+        var a = -Math.PI/2 + (Math.PI/2) * (i / segments);
+        pts.push(new THREE.Vector3(w/2 - r + Math.cos(a) * r, h/2 - r + Math.sin(a) * r, 0));
+    }
+    // Top-left corner
+    for (var i = 0; i <= segments; i++) {
+        var a = 0 + (Math.PI/2) * (i / segments);
+        pts.push(new THREE.Vector3(-w/2 + r - Math.cos(Math.PI/2 - a) * r, h/2 - r + Math.sin(Math.PI/2 - a) * r, 0));
+    }
+    // Fix: rebuild top-left
+    pts.length -= segments + 1;
+    for (var i = 0; i <= segments; i++) {
+        var a = 0 + (Math.PI/2) * (i / segments);
+        pts.push(new THREE.Vector3(-w/2 + r + Math.cos(a) * r, h/2 - r + Math.sin(a) * r, 0));
+    }
+    // Bottom-left corner
+    for (var i = 0; i <= segments; i++) {
+        var a = Math.PI/2 + (Math.PI/2) * (i / segments);
+        pts.push(new THREE.Vector3(-w/2 + r + Math.cos(a) * r, -h/2 + r + Math.sin(a) * r, 0));
+    }
+    // Bottom-right corner
+    for (var i = 0; i <= segments; i++) {
+        var a = Math.PI + (Math.PI/2) * (i / segments);
+        pts.push(new THREE.Vector3(w/2 - r + Math.cos(a) * r, -h/2 + r + Math.sin(a) * r, 0));
+    }
+    pts.push(pts[0].clone()); // close
+    var geo = new THREE.BufferGeometry().setFromPoints(pts);
+    return geo;
+}
+
+function wireRoundedRect(w, h, r, color, opacity) {
+    var geo = createRoundedRect(w, h, r, 6);
+    return new THREE.Line(geo, edgeMat(color, opacity || 0.3));
+}
+
+// ═══ WINDOW GRID (logo motif: 2x3 rounded rects) ═══
+function createWindowGrid(totalW, totalH, cols, rows, gap, cornerR, color, opacity) {
+    var group = new THREE.Group();
+    var cellW = (totalW - gap * (cols - 1)) / cols;
+    var cellH = (totalH - gap * (rows - 1)) / rows;
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = -totalW/2 + cellW/2 + col * (cellW + gap);
+            var y = totalH/2 - cellH/2 - row * (cellH + gap);
+            var rect = wireRoundedRect(cellW, cellH, cornerR, color, opacity);
+            rect.position.set(x, y, 0);
+            group.add(rect);
+            // Subtle glow fill
+            var fill = solidPlane(cellW * 0.9, cellH * 0.9, color, 0.03);
+            fill.position.set(x, y, 0.01);
+            group.add(fill);
+        }
+    }
+    return group;
+}
+
+// ════════════════════════════════════
+// BUILD THE OFFICE
+// ════════════════════════════════════
+var ROOM_W = 20;
+var ROOM_H = 6;
+var ROOM_L = 75;
+
+// Floor — warm grid
+var floorGroup = new THREE.Group();
+var floorMat = edgeMat(COL_WARM, 0.12);
+for (var x = -ROOM_W/2; x <= ROOM_W/2; x += 2) {
+    var geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, 0, 15), new THREE.Vector3(x, 0, -ROOM_L + 15)
+    ]);
+    floorGroup.add(new THREE.Line(geo, floorMat));
+}
+for (var z = 15; z >= -ROOM_L + 15; z -= 2) {
+    var geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-ROOM_W/2, 0, z), new THREE.Vector3(ROOM_W/2, 0, z)
+    ]);
+    floorGroup.add(new THREE.Line(geo, floorMat));
+}
+scene.add(floorGroup);
+
+// Walls — faint vertical lines (warm tones)
+var wallMat = edgeMat(COL_WARM, 0.07);
+for (var z = 15; z >= -ROOM_L + 15; z -= 4) {
+    var lGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-ROOM_W/2, 0, z), new THREE.Vector3(-ROOM_W/2, ROOM_H, z)
+    ]);
+    scene.add(new THREE.Line(lGeo, wallMat));
+    var rGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(ROOM_W/2, 0, z), new THREE.Vector3(ROOM_W/2, ROOM_H, z)
+    ]);
+    scene.add(new THREE.Line(rGeo, wallMat));
+}
+// Wall top edges
+scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-ROOM_W/2, ROOM_H, 15), new THREE.Vector3(-ROOM_W/2, ROOM_H, -ROOM_L+15)
+    ]), edgeMat(COL_RED, 0.08)
+));
+scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(ROOM_W/2, ROOM_H, 15), new THREE.Vector3(ROOM_W/2, ROOM_H, -ROOM_L+15)
+    ]), edgeMat(COL_RED, 0.08)
+));
+// Floor edges
+scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-ROOM_W/2, 0, 15), new THREE.Vector3(-ROOM_W/2, 0, -ROOM_L+15)
+    ]), edgeMat(COL_GREEN, 0.12)
+));
+scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(ROOM_W/2, 0, 15), new THREE.Vector3(ROOM_W/2, 0, -ROOM_L+15)
+    ]), edgeMat(COL_GREEN, 0.12)
+));
+
+// Ceiling accent strips (alternating red/green)
+for (var i = 0; i < 3; i++) {
+    var xPos = -4 + i * 4;
+    var col = i === 1 ? COL_GREEN : COL_RED;
+    var geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(xPos, ROOM_H - 0.05, 15), new THREE.Vector3(xPos, ROOM_H - 0.05, -ROOM_L+15)
+    ]);
+    scene.add(new THREE.Line(geo, edgeMat(col, 0.1)));
+}
+
+// ═══ DECORATIVE FLOATING WINDOWS ═══
+// Scattered window-grid shapes along the corridor for playful atmosphere
+var floatingWindows = [];
+var windowDefs = [
+    { pos: [-7, 3.5, 0], rot: [0, 0.3, 0], cols: 3, rows: 2, w: 2.5, h: 1.8, color: COL_RED },
+    { pos: [7, 4, -10], rot: [0, -0.2, 0.1], cols: 2, rows: 2, w: 2, h: 2, color: COL_GREEN },
+    { pos: [-8, 2, -22], rot: [0, 0.4, -0.1], cols: 3, rows: 2, w: 2, h: 1.5, color: COL_RED },
+    { pos: [8, 4.5, -33], rot: [0, -0.3, 0], cols: 2, rows: 3, w: 1.5, h: 2.5, color: COL_GREEN },
+    { pos: [-7, 3, -44], rot: [0, 0.2, 0.05], cols: 3, rows: 2, w: 2.5, h: 1.8, color: COL_RED },
+    { pos: [7, 2.5, -55], rot: [0, -0.4, 0], cols: 2, rows: 2, w: 2, h: 2, color: COL_GREEN },
+];
+windowDefs.forEach(function(def) {
+    var wg = createWindowGrid(def.w, def.h, def.cols, def.rows, 0.12, 0.15, def.color, 0.2);
+    wg.position.set(def.pos[0], def.pos[1], def.pos[2]);
+    wg.rotation.set(def.rot[0], def.rot[1], def.rot[2]);
+    scene.add(wg);
+    floatingWindows.push(wg);
+});
+
+// ═══ SECTION 0: LOBBY (z: 8 to 2) ═══
+var desk0 = wireBox(3, 1, 1.2, COL_RED, 0.3);
+desk0.position.set(0, 0.5, 6);
+scene.add(desk0);
+// Logo window grid behind desk
+var logoGrid = createWindowGrid(3, 3, 3, 2, 0.15, 0.2, COL_RED, 0.3);
+logoGrid.position.set(0, 3, 4);
+scene.add(logoGrid);
+// Rounded arch / doorway
+var archPts = [];
+for (var a = 0; a <= Math.PI; a += Math.PI / 16) {
+    archPts.push(new THREE.Vector3(Math.cos(a) * 3, Math.sin(a) * 3.5 + 0.5, 2));
+}
+scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(archPts),
+    edgeMat(COL_GREEN, 0.2)
+));
+
+// ═══ SECTION 1: ABOUT (z: -2 to -10) ═══
+var screen1 = wireBox(0.1, 3, 5, COL_GREEN, 0.25);
+screen1.position.set(ROOM_W/2 - 0.1, 2.5, -6);
+scene.add(screen1);
+var screen1Glow = solidPlane(5, 3, COL_GREEN, 0.04);
+screen1Glow.position.set(ROOM_W/2 - 0.15, 2.5, -6);
+screen1Glow.rotation.y = -Math.PI / 2;
+scene.add(screen1Glow);
+// Window decor on screen
+var screenDecor = createWindowGrid(4, 2.2, 3, 2, 0.12, 0.15, COL_GREEN, 0.15);
+screenDecor.position.set(ROOM_W/2 - 0.2, 2.5, -6);
+screenDecor.rotation.y = -Math.PI / 2;
+scene.add(screenDecor);
+// Bench
+var bench1 = wireBox(3, 0.5, 0.8, COL_MUTED, 0.15);
+bench1.position.set(5, 0.25, -6);
+scene.add(bench1);
+
+// ═══ SECTION 2: SERVICES (z: -12 to -20) ═══
+var pedestalPositions = [[-4, -15], [-1.5, -16], [1.5, -16], [4, -15]];
+var pedestalColors = [COL_RED, COL_GREEN, COL_RED, COL_GREEN];
+pedestalPositions.forEach(function(pos, i) {
+    var ped = wireBox(1.2, 1.2, 1.2, pedestalColors[i], 0.25);
+    ped.position.set(pos[0], 0.6, pos[1]);
+    scene.add(ped);
+    // Floating window shape above each pedestal
+    var miniWin = wireRoundedRect(0.8, 0.6, 0.12, pedestalColors[i], 0.5);
+    miniWin.position.set(pos[0], 2.2, pos[1]);
+    miniWin.userData.floatOffset = i * 1.5; // for animation
+    scene.add(miniWin);
+    floatingWindows.push(miniWin);
+    // Glow disc
+    var disc = solidPlane(0.8, 0.8, pedestalColors[i], 0.06);
+    disc.position.set(pos[0], 1.25, pos[1]);
+    disc.rotation.x = -Math.PI / 2;
+    scene.add(disc);
+});
+var centerPed = wireBox(2.5, 0.8, 1.2, COL_GREEN, 0.2);
+centerPed.position.set(0, 0.4, -19);
+scene.add(centerPed);
+
+// ═══ SECTION 3: GALLERY (z: -22 to -30) ═══
+var framePositions = [[-3, 3, -24], [0, 3.5, -26], [3, 2.8, -25], [-2, 2, -28], [2, 2.5, -28]];
+framePositions.forEach(function(pos, i) {
+    // Rounded frame (window shape)
+    var frame = wireRoundedRect(2, 1.5, 0.2, COL_RED, 0.35);
+    frame.position.set(ROOM_W/2 - 0.5, pos[1], pos[2]);
+    frame.rotation.y = -Math.PI / 2;
+    scene.add(frame);
+    // Glow behind
+    var fg = solidPlane(1.8, 1.3, COL_RED, 0.04);
+    fg.position.set(ROOM_W/2 - 0.55, pos[1], pos[2]);
+    fg.rotation.y = -Math.PI / 2;
+    scene.add(fg);
+});
+
+// ═══ SECTION 4: TEAM (z: -32 to -42) ═══
+var table = wireBox(5, 0.1, 2.5, COL_GREEN, 0.3);
+table.position.set(-3, 1.0, -37);
+scene.add(table);
+var tableGlow = solidPlane(5, 2.5, COL_GREEN, 0.04);
+tableGlow.position.set(-3, 1.05, -37);
+tableGlow.rotation.x = -Math.PI / 2;
+scene.add(tableGlow);
+var teamChairs = [
+    [-5.8, -35.5], [-5.8, -37], [-5.8, -38.5],
+    [-0.3, -37],
+    [-3, -39.5],
+];
+teamChairs.forEach(function(pos) {
+    var chair = wireBox(0.6, 1.0, 0.6, COL_GREEN, 0.2);
+    chair.position.set(pos[0], 0.5, pos[1]);
+    scene.add(chair);
+    var sg = solidPlane(0.5, 0.5, COL_GREEN, 0.04);
+    sg.position.set(pos[0], 1.02, pos[1]);
+    sg.rotation.x = -Math.PI / 2;
+    scene.add(sg);
+});
+
+// ═══ SECTION 5: LAB (z: -44 to -52) ═══
+var workstations = [[5, -46], [5, -48.5], [5, -51]];
+workstations.forEach(function(pos) {
+    var ws = wireBox(2, 0.8, 1, COL_RED, 0.2);
+    ws.position.set(pos[0], 0.4, pos[1]);
+    scene.add(ws);
+    var mon = wireRoundedRect(1.2, 0.8, 0.1, COL_RED, 0.35);
+    mon.position.set(pos[0] + 0.8, 1.2, pos[1]);
+    mon.rotation.y = -Math.PI / 2;
+    scene.add(mon);
+    var mg = solidPlane(1.0, 0.6, COL_RED, 0.05);
+    mg.position.set(pos[0] + 0.85, 1.2, pos[1]);
+    mg.rotation.y = -Math.PI / 2;
+    scene.add(mg);
+});
+// Whiteboard (window grid on left wall)
+var wbGrid = createWindowGrid(3, 2, 3, 2, 0.1, 0.12, COL_GREEN, 0.18);
+wbGrid.position.set(-ROOM_W/2 + 0.15, 2.5, -49);
+wbGrid.rotation.y = Math.PI / 2;
+scene.add(wbGrid);
+
+// ═══ SECTION 6: CONTACT (z: -54 to -60) ═══
+var recDesk = wireBox(4, 1.2, 1.5, COL_RED, 0.3);
+recDesk.position.set(0, 0.6, -58);
+scene.add(recDesk);
+// Back wall — large window grid
+var backGrid = createWindowGrid(12, 4, 4, 3, 0.2, 0.25, COL_GREEN, 0.12);
+backGrid.position.set(0, ROOM_H / 2, -ROOM_L + 15.15);
+scene.add(backGrid);
+// Red accent frames on back wall
+for (var x = -5; x <= 5; x += 3.3) {
+    var mFrame = wireRoundedRect(1.5, 1.5, 0.2, COL_RED, 0.2);
+    mFrame.position.set(x, 3.5, -ROOM_L + 15.25);
+    scene.add(mFrame);
+}
+
+// ═══ HOLOGRAPHIC EMITTER MARKERS ═══
+var emitterAnchors = [
+    [0, 0.02, 5], [8, 0.02, -6], [-3, 0.02, -16],
+    [8, 0.02, -26], [-3, 0.02, -37], [5, 0.02, -49], [0, 0.02, -58],
+];
+var emitterColors = [COL_RED, COL_GREEN, COL_RED, COL_RED, COL_GREEN, COL_RED, COL_GREEN];
+var emitters = [];
+emitterAnchors.forEach(function(pos, i) {
+    var disc = solidPlane(1.2, 1.2, emitterColors[i], 0.06);
+    disc.position.set(pos[0], pos[1], pos[2]);
+    disc.rotation.x = -Math.PI / 2;
+    scene.add(disc);
+    var ring = wireCircle(0.6, 16, emitterColors[i], 0.2);
+    ring.position.set(pos[0], pos[1] + 0.01, pos[2]);
+    scene.add(ring);
+    emitters.push({ disc: disc, ring: ring });
+});
+
+// ════════════════════════════════════
+// AMBIENT PARTICLES
+// ════════════════════════════════════
+var particleCount = 600;
+var pGeo = new THREE.BufferGeometry();
+var pPositions = new Float32Array(particleCount * 3);
+var pColors = new Float32Array(particleCount * 3);
+var colorChoices = [new THREE.Color(COL_RED), new THREE.Color(COL_GREEN), new THREE.Color(0xf0ece4), new THREE.Color(COL_MUTED)];
+for (var i = 0; i < particleCount; i++) {
+    pPositions[i*3] = (Math.random() - 0.5) * ROOM_W * 0.8;
+    pPositions[i*3+1] = Math.random() * ROOM_H;
+    pPositions[i*3+2] = 15 - Math.random() * ROOM_L;
+    var c = colorChoices[Math.floor(Math.random() * 4)];
+    pColors[i*3] = c.r; pColors[i*3+1] = c.g; pColors[i*3+2] = c.b;
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+var pMat = new THREE.PointsMaterial({ size: 0.04, vertexColors: true, transparent: true, opacity: 0.45 });
+var dust = new THREE.Points(pGeo, pMat);
+scene.add(dust);
+
+// ════════════════════════════════════
+// CAMERA PATH
+// ════════════════════════════════════
+var NUM_SECTIONS = 7;
+var camPoints = [
+    new THREE.Vector3(0, 2.2, 12),
+    new THREE.Vector3(2, 2.0, -4),
+    new THREE.Vector3(-2, 2.0, -16),
+    new THREE.Vector3(2, 2.2, -26),
+    new THREE.Vector3(2, 2.5, -37),
+    new THREE.Vector3(-2, 2.0, -49),
+    new THREE.Vector3(0, 2.2, -56),
+];
+var lookPoints = [
+    new THREE.Vector3(0, 2, 4),
+    new THREE.Vector3(8, 2.5, -6),
+    new THREE.Vector3(0, 1.5, -17),
+    new THREE.Vector3(8, 3, -26),
+    new THREE.Vector3(-3, 1.5, -37),
+    new THREE.Vector3(5, 1.5, -49),
+    new THREE.Vector3(0, 2, -58),
+];
+var camPath = new THREE.CatmullRomCurve3(camPoints);
+var lookPath = new THREE.CatmullRomCurve3(lookPoints);
+
+// ════════════════════════════════════
+// SCROLL & SECTION LOGIC
+// ════════════════════════════════════
+var currentSection = 0;
+var scrollProgress = 0;
+var smoothProgress = 0;
+var lastScrollProgress = 0;
+var scrollDirection = 1;
+var scrollTimer = null;
+var isSnapping = false;
+var panels = document.querySelectorAll('.content-panel');
+var dots = document.querySelectorAll('.section-dot');
+var scrollHint = document.getElementById('scrollHint');
+
+window.addEventListener('scroll', function() {
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
+    var progress = Math.max(0, Math.min(1, scrollTop / scrollMax));
+    if (progress > lastScrollProgress + 0.001) scrollDirection = 1;
+    else if (progress < lastScrollProgress - 0.001) scrollDirection = -1;
+    lastScrollProgress = progress;
+    isSnapping = false;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function() {
+        if (isSnapping) return;
+        var sf = progress * (NUM_SECTIONS - 1);
+        var frac = sf - Math.floor(sf);
+        if (frac < 0.05 || frac > 0.95) return;
+        var ts = scrollDirection > 0 ? Math.ceil(sf) : Math.floor(sf);
+        ts = Math.max(0, Math.min(NUM_SECTIONS - 1, ts));
+        isSnapping = true;
+        scrollToSection(ts);
+    }, 150);
+});
+
+// Parse anchor positions
+var panelAnchors = [];
+panels.forEach(function(panel) {
+    var raw = panel.getAttribute('data-anchor');
+    if (raw) {
+        var parts = raw.split(',').map(Number);
+        panelAnchors.push(new THREE.Vector3(parts[0], parts[1], parts[2]));
+    } else {
+        panelAnchors.push(null);
+    }
+});
+var projVec = new THREE.Vector3();
+var baseVec = new THREE.Vector3();
+var connectorSvg = document.getElementById('connectorSvg');
+
+// Build connector lines
+panels.forEach(function(panel, i) {
+    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('id', 'conn-' + i);
+    line.setAttribute('stroke', 'url(#connGrad)');
+    line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('stroke-dasharray', '4 4');
+    line.setAttribute('opacity', '0');
+    connectorSvg.appendChild(line);
+});
+var defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+var grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+grad.setAttribute('id', 'connGrad');
+grad.setAttribute('gradientUnits', 'userSpaceOnUse');
+var s1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+s1.setAttribute('offset', '0%'); s1.setAttribute('stop-color', '#D94B3A'); s1.setAttribute('stop-opacity', '0.4');
+var s2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+s2.setAttribute('offset', '100%'); s2.setAttribute('stop-color', '#8BC34A'); s2.setAttribute('stop-opacity', '0.15');
+grad.appendChild(s1); grad.appendChild(s2);
+defs.appendChild(grad);
+connectorSvg.insertBefore(defs, connectorSvg.firstChild);
+
+function updateSections(progress) {
+    var sf = progress * (NUM_SECTIONS - 1);
+    var section = Math.round(sf);
+
+    camera.updateMatrixWorld();
+
+    panels.forEach(function(panel, i) {
+        var dist = Math.abs(sf - i);
+        var anchor = panelAnchors[i];
+
+        if (dist < 0.6 && anchor) {
+            projVec.copy(anchor);
+            projVec.project(camera);
+
+            if (projVec.z > 1) {
+                panel.style.opacity = 0;
+                panel.classList.remove('active');
+                return;
+            }
+
+            var sx = (projVec.x * 0.5 + 0.5) * window.innerWidth;
+            var sy = (-projVec.y * 0.5 + 0.5) * window.innerHeight;
+            sx = Math.max(220, Math.min(window.innerWidth - 220, sx));
+            sy = Math.max(80, Math.min(window.innerHeight - 80, sy));
+
+            var camDist = camera.position.distanceTo(anchor);
+            var scaleFactor = Math.max(0.35, Math.min(1.2, 4.0 / camDist));
+
+            var fade = dist < 0.45 ? Math.max(0, 1 - dist / 0.45) : 0;
+
+            panel.style.left = sx + 'px';
+            panel.style.top = sy + 'px';
+            panel.style.transform = 'translate(-50%, -50%) scale(' + scaleFactor.toFixed(3) + ')';
+            panel.style.opacity = fade;
+            panel.classList.toggle('active', fade > 0.3);
+
+            var connLine = document.getElementById('conn-' + i);
+            if (connLine && fade > 0.05) {
+                baseVec.set(anchor.x, 0.1, anchor.z);
+                baseVec.project(camera);
+                if (baseVec.z < 1) {
+                    var bx = (baseVec.x * 0.5 + 0.5) * window.innerWidth;
+                    var by = (-baseVec.y * 0.5 + 0.5) * window.innerHeight;
+                    connLine.setAttribute('x1', sx); connLine.setAttribute('y1', sy);
+                    connLine.setAttribute('x2', bx); connLine.setAttribute('y2', by);
+                    connLine.setAttribute('opacity', fade * 0.4);
+                } else {
+                    connLine.setAttribute('opacity', '0');
+                }
+            } else if (connLine) {
+                connLine.setAttribute('opacity', '0');
+            }
+        } else {
+            panel.style.opacity = 0;
+            panel.classList.remove('active');
+            var connLine2 = document.getElementById('conn-' + i);
+            if (connLine2) connLine2.setAttribute('opacity', '0');
+        }
+    });
+    dots.forEach(function(dot, i) { dot.classList.toggle('active', i === section); });
+    if (progress > 0.02) scrollHint.classList.add('hidden');
+    else scrollHint.classList.remove('hidden');
+    currentSection = section;
+}
+
+function scrollToSection(index) {
+    var scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
+    window.scrollTo({ top: (index / (NUM_SECTIONS - 1)) * scrollMax, behavior: 'smooth' });
+}
+
+// ════════════════════════════════════
+// ANIMATION LOOP
+// ════════════════════════════════════
+var clock = new THREE.Clock();
+var targetCamPos = new THREE.Vector3();
+var targetLookPos = new THREE.Vector3();
+var currentLookTarget = new THREE.Vector3(0, 2, 4);
+
+function animate() {
+    requestAnimationFrame(animate);
+    var t = clock.getElapsedTime();
+
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
+    scrollProgress = Math.max(0, Math.min(1, scrollTop / scrollMax));
+    smoothProgress += (scrollProgress - smoothProgress) * 0.06;
+
+    camPath.getPoint(smoothProgress, targetCamPos);
+    lookPath.getPoint(smoothProgress, targetLookPos);
+    camera.position.lerp(targetCamPos, 0.08);
+    currentLookTarget.lerp(targetLookPos, 0.08);
+    camera.lookAt(currentLookTarget);
+
+    // Dust drift
+    var positions = dust.geometry.attributes.position.array;
+    for (var i = 0; i < particleCount; i++) {
+        positions[i*3+1] += Math.sin(t * 0.2 + i * 0.05) * 0.0003;
+    }
+    dust.geometry.attributes.position.needsUpdate = true;
+
+    // Floating windows — gentle bob and rotate
+    floatingWindows.forEach(function(win, i) {
+        var offset = win.userData.floatOffset || i * 0.8;
+        win.position.y += Math.sin(t * 0.6 + offset) * 0.0008;
+        win.rotation.z = Math.sin(t * 0.3 + offset) * 0.03;
+    });
+
+    // Emitter pulse
+    var sf = smoothProgress * (NUM_SECTIONS - 1);
+    emitters.forEach(function(em, i) {
+        var d = Math.abs(sf - i);
+        var pulse = Math.sin(t * 2.5 + i) * 0.03;
+        var active = d < 0.5;
+        em.disc.material.opacity = active ? 0.12 + pulse : 0.03;
+        em.ring.material.opacity = active ? 0.35 + pulse : 0.08;
+        em.ring.rotation.y = t * 0.4 + i;
+    });
+
+    updateSections(smoothProgress);
+    renderer.render(scene, camera);
+}
+animate();
+
+// ════════════════════════════════════
+// RESIZE
+// ════════════════════════════════════
+window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
