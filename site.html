@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shababeek Labs — XR Studio</title>
     <link rel="icon" type="image/png" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
     <style>
         /* ===== RESET & BASE ===== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -21,7 +24,8 @@
             --text: #E8E8E8;
             --text-dim: #888888;
             --text-muted: #555555;
-            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-heading: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
             --mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
         }
 
@@ -130,6 +134,7 @@
         }
 
         .nav-logo span {
+            font-family: var(--font-heading);
             font-size: 1.1rem;
             font-weight: 700;
             letter-spacing: 2px;
@@ -280,8 +285,9 @@
         }
 
         .hero h1 {
+            font-family: var(--font-heading);
             font-size: clamp(2.8rem, 6vw, 5rem);
-            font-weight: 800;
+            font-weight: 700;
             line-height: 1.08;
             letter-spacing: -1px;
             margin-bottom: 24px;
@@ -397,8 +403,9 @@
         }
 
         .section-title {
+            font-family: var(--font-heading);
             font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
+            font-weight: 700;
             line-height: 1.15;
             margin-bottom: 20px;
         }
@@ -446,8 +453,9 @@
         }
 
         .stat-number {
+            font-family: var(--font-heading);
             font-size: 2.2rem;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--green);
             line-height: 1;
             margin-bottom: 4px;
@@ -548,7 +556,7 @@
             border-color: rgba(224, 72, 50, 0.15);
         }
 
-        .service-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
+        .service-card h3 { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; }
         .service-card p { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; }
 
         .service-tags {
@@ -747,6 +755,7 @@
         }
 
         .project-category-header h3 {
+            font-family: var(--font-heading);
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 8px;
@@ -789,8 +798,9 @@
         }
 
         .tool-name {
+            font-family: var(--font-heading);
             font-size: 1.4rem;
-            font-weight: 800;
+            font-weight: 700;
             margin-bottom: 4px;
         }
 
@@ -964,7 +974,7 @@
         .team-card:nth-child(4) .team-avatar { background: #b44aff; }
         .team-card:nth-child(5) .team-avatar { background: #39ff14; }
 
-        .team-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+        .team-name { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
         .team-role { font-size: 0.75rem; color: var(--text-dim); letter-spacing: 0.5px; margin-bottom: 12px; }
         .team-bio { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
 
@@ -1082,6 +1092,7 @@
         }
 
         .blog-card-title {
+            font-family: var(--font-heading);
             font-size: 1.05rem;
             font-weight: 700;
             margin-bottom: 10px;
