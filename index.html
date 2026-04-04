@@ -3,97 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shababeek Labs — Windows Into Other Realities</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Shababeek Labs — 3D Experience</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --red: #E04832;
+            --green: #6BBF3B;
+            --green-dim: rgba(107, 191, 59, 0.6);
+            --amber: #ffb000;
+            --dark: #0A0A0A;
+            --text: #E8E8E8;
+            --text-dim: #888888;
+            --text-muted: #555555;
+        }
+
         html { scroll-behavior: auto; }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: #0a0a14;
-            color: #e0e8f0;
+            margin: 0;
+            background: #000;
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
             overflow-x: hidden;
         }
 
-        /* Three.js canvas — fixed background */
-        #bg-canvas {
+        /* ===== THREE.JS CANVAS ===== */
+        #canvas-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: 0;
-        }
-
-        /* Scroll spacer — drives total scroll length */
-        #scroll-spacer {
-            position: relative;
-            z-index: 1;
             pointer-events: none;
-            height: 800vh;
         }
 
-        /* Navigation */
-        nav {
+        canvas {
+            display: block;
+            pointer-events: none;
+        }
+
+        /* ===== OVERLAY UI ===== */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .section-3d.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .section-3d.visible * {
+            pointer-events: auto;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .section-3d.visible a,
+        .section-3d.visible button {
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+        }
+
+        /* ===== NAVBAR ===== */
+        .nav-3d {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 18px 30px;
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(12px);
-            background: rgba(10, 10, 20, 0.6);
-            border-bottom: 1px solid rgba(0, 149, 255, 0.1);
-            transition: opacity 0.3s;
+            transition: all 0.6s;
         }
+
+        .nav-3d.dim {
+            opacity: 0.4;
+        }
+
         .nav-logo {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-        }
-        .nav-logo img { width: 32px; height: 32px; }
-        .nav-logo span {
-            font-family: 'Orbitron', monospace;
-            font-size: 18px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #0095FF, #D359FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 2px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 6px;
-        }
-        .nav-links a {
-            color: #7B8DA6;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid transparent;
-            transition: all 0.3s;
-            cursor: pointer;
-            pointer-events: all;
-        }
-        .nav-links a:hover {
-            color: #0095FF;
-            border-color: rgba(0, 149, 255, 0.3);
-            background: rgba(0, 149, 255, 0.08);
+            color: var(--text);
         }
 
-        /* Content overlay panels */
-        .content-panel {
+        .nav-logo img {
+            width: 36px;
+            height: 36px;
+        }
+
+        .nav-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .nav-logo-text .green { color: var(--green); }
+
+        .nav-dots {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            padding: 0;
+        }
+
+        .nav-dot:hover { background: var(--text-dim); transform: scale(1.3); }
+        .nav-dot.active { background: var(--green); box-shadow: 0 0 12px rgba(107,191,59,0.5); transform: scale(1.2); }
+
+        .nav-dot-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            opacity: 0;
+            transition: opacity 0.3s;
+            position: absolute;
+            top: 24px;
+            white-space: nowrap;
+            transform: translateX(-50%);
+            left: 50%;
+        }
+
+        .nav-dot-wrap {
+            position: relative;
+        }
+
+        .nav-dot-wrap:hover .nav-dot-label { opacity: 1; }
+
+        /* ===== SECTIONS ===== */
+        .section-3d {
             position: fixed;
             top: 0;
             left: 0;
@@ -102,1401 +170,1297 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-            pointer-events: none;
             opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        .content-panel.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-        .panel-inner {
-            max-width: 800px;
-            width: 90%;
-            padding: 50px;
-            background: rgba(10, 10, 20, 0.75);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 149, 255, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-        .panel-inner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #0095FF, #D359FF, transparent);
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        /* Panel color variants */
-        .panel-blue .panel-inner { border-color: rgba(0, 149, 255, 0.2); }
-        .panel-blue .panel-inner::before { background: linear-gradient(90deg, transparent, #0095FF, transparent); }
-        .panel-violet .panel-inner { border-color: rgba(211, 89, 255, 0.2); }
-        .panel-violet .panel-inner::before { background: linear-gradient(90deg, transparent, #D359FF, transparent); }
-        .panel-orange .panel-inner { border-color: rgba(255, 107, 53, 0.2); }
-        .panel-orange .panel-inner::before { background: linear-gradient(90deg, transparent, #FF6B35, transparent); }
-
-        /* Hero panel — special full-screen treatment */
-        .hero-panel .panel-inner {
-            background: transparent;
-            backdrop-filter: none;
-            border: none;
+        /* ===== HERO SECTION ===== */
+        .hero-3d {
             text-align: center;
-            max-width: 900px;
-        }
-        .hero-panel .panel-inner::before { display: none; }
-
-        .hero-title {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(32px, 5vw, 64px);
-            font-weight: 900;
-            line-height: 1.2;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #0095FF, #D359FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero-tagline {
-            font-size: 18px;
-            color: #D359FF;
-            font-style: italic;
-            margin-bottom: 16px;
-        }
-        .hero-subtitle {
-            font-size: 17px;
-            color: #7B8DA6;
-            line-height: 1.7;
-            max-width: 600px;
-            margin: 0 auto 30px;
+            max-width: 800px;
+            padding: 0 40px;
         }
 
-        /* Hero logo */
         .hero-logo {
-            margin-bottom: 40px;
-            display: flex;
-            justify-content: center;
-        }
-        .hero-logo-img {
-            width: 180px;
+            width: clamp(100px, 15vw, 160px);
             height: auto;
-            filter: drop-shadow(0 0 30px rgba(0, 149, 255, 0.4)) drop-shadow(0 0 60px rgba(211, 89, 255, 0.3));
-            animation: logoPulse 3s infinite;
-        }
-        @keyframes logoPulse {
-            0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 149, 255, 0.4)) drop-shadow(0 0 60px rgba(211, 89, 255, 0.3)); }
-            50% { filter: drop-shadow(0 0 50px rgba(0, 149, 255, 0.6)) drop-shadow(0 0 80px rgba(211, 89, 255, 0.5)); }
+            margin: 0 auto 32px;
+            filter: drop-shadow(0 0 40px rgba(107, 191, 59, 0.2)) drop-shadow(0 0 80px rgba(224, 72, 50, 0.1));
+            animation: heroLogoFloat 5s ease-in-out infinite;
         }
 
-        /* Typography for panels */
-        h2 {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(24px, 3vw, 36px);
-            font-weight: 900;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #0095FF, #D359FF);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        @keyframes heroLogoFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.02); }
         }
-        h3 {
-            font-family: 'Orbitron', monospace;
-            font-size: 20px;
+
+        @keyframes pulse3d {
+            0%, 100% { opacity: 0.4; box-shadow: none; }
+            50% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+        }
+
+        .hero-title-3d {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 7vw, 5.5rem);
             font-weight: 700;
-            color: #e0e8f0;
-            margin-bottom: 8px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
-        .section-text {
-            font-size: 16px;
-            color: #7B8DA6;
-            line-height: 1.8;
-        }
-        .section-text + .section-text { margin-top: 16px; }
 
-        /* Services grid */
-        .services-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .hero-title-3d .red { color: var(--red); }
+        .hero-title-3d .green { color: var(--green); }
+
+        .hero-sub-3d {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.75);
+            max-width: 520px;
+            margin: 0 auto 36px;
+            line-height: 1.7;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+        }
+
+        .hero-actions-3d {
+            display: flex;
             gap: 16px;
-            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
-        .service-card {
-            padding: 20px;
-            background: rgba(0, 149, 255, 0.05);
-            border: 1px solid rgba(0, 149, 255, 0.15);
-            border-radius: 12px;
+
+        .btn-3d {
+            padding: 14px 34px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
             transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            font-family: 'Inter', sans-serif;
         }
-        .service-card:hover {
-            border-color: rgba(0, 149, 255, 0.4);
-            background: rgba(0, 149, 255, 0.1);
+
+        .btn-3d-primary {
+            background: var(--red);
+            color: white;
+        }
+
+        .btn-3d-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(224,72,50,0.35);
+        }
+
+        .btn-3d-ghost {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .btn-3d-ghost:hover {
+            border-color: var(--green);
+            color: var(--green);
             transform: translateY(-2px);
         }
-        .service-icon { font-size: 28px; margin-bottom: 8px; }
-        .service-card h3 { font-size: 15px; margin-bottom: 6px; color: #0095FF; }
-        .service-card p { font-size: 13px; color: #7B8DA6; line-height: 1.6; }
 
-        /* Featured project */
-        .project-meta {
+        .scroll-hint {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: opacity 0.6s;
         }
-        .meta-item {
-            font-size: 13px;
-            color: #7B8DA6;
-        }
-        .meta-item strong { color: #D359FF; }
 
-        /* Team grid */
-        .team-grid {
+        .scroll-hint.hidden { opacity: 0; }
+
+        .scroll-hint-line {
+            width: 1px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--green), transparent);
+            animation: pulse3d 2s infinite;
+        }
+
+        /* ===== CONTENT PANELS ===== */
+        .panel-3d {
+            max-width: 560px;
+            padding: 36px 44px;
+            background: none;
+            border: none;
+            border-radius: 20px;
+        }
+
+        .panel-3d.right {
+            margin-left: auto;
+            margin-right: 10%;
+        }
+
+        .panel-3d.left {
+            margin-right: auto;
+            margin-left: 10%;
+        }
+
+        .panel-3d.center {
+            margin: 0 auto;
+            text-align: center;
+            max-width: 750px;
+        }
+
+        .panel-3d.wide {
+            max-width: 900px;
+        }
+
+        .panel-3d.transparent {
+            background: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            border: none;
+        }
+
+        .label-3d {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 14px;
+        }
+
+        .label-3d::before {
+            content: '';
+            width: 20px;
+            height: 1px;
+            background: var(--green);
+        }
+
+        .label-3d.amber { color: var(--amber); }
+        .label-3d.amber::before { background: var(--amber); }
+
+        .title-3d {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 18px;
+            letter-spacing: -0.5px;
+        }
+
+        .sub-3d {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.7);
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: flex;
+            gap: 32px;
+            margin-top: 28px;
+        }
+
+        .stat-3d {
+            text-align: left;
+        }
+
+        .stat-3d-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        .stat-3d-label {
+            font-size: 0.68rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Service showcase grid */
+        .services-showcase {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 20px;
-        }
-        .team-member {
-            display: flex;
+            grid-template-columns: repeat(3, 1fr);
             gap: 14px;
-            padding: 16px;
-            background: rgba(211, 89, 255, 0.05);
-            border: 1px solid rgba(211, 89, 255, 0.15);
-            border-radius: 12px;
+            margin-top: 24px;
         }
-        .team-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0095FF, #D359FF);
-            flex-shrink: 0;
+
+        .service-showcase-card {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .service-showcase-card:hover {
+            border-color: var(--green);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+
+        .service-showcase-img {
+            width: 100%;
+            aspect-ratio: 16/10;
+            object-fit: cover;
+            display: block;
+            background: linear-gradient(135deg, rgba(107,191,59,0.06), rgba(224,72,50,0.04));
+        }
+
+        .service-showcase-img.placeholder {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Orbitron', monospace;
-            font-size: 16px;
-            font-weight: 700;
-            color: #0a0a14;
-        }
-        .team-name {
-            font-weight: 700;
-            font-size: 14px;
-            color: #e0e8f0;
-        }
-        .team-role {
-            font-size: 12px;
-            color: #0095FF;
-            margin-top: 2px;
-        }
-        .team-bio {
-            font-size: 12px;
-            color: #7B8DA6;
-            line-height: 1.5;
-            margin-top: 4px;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            opacity: 0.4;
         }
 
-        /* Blog cards */
-        .blog-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 16px;
-            margin-top: 20px;
+        .service-showcase-label {
+            padding: 10px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
         }
-        .blog-card {
+
+        .service-showcase-sub {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        /* Tool cards inline */
+        .tools-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .tool-mini {
+            flex: 1;
             padding: 20px;
-            background: rgba(211, 89, 255, 0.05);
-            border: 1px solid rgba(211, 89, 255, 0.15);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(107,191,59,0.12);
             border-radius: 12px;
             transition: all 0.3s;
         }
-        .blog-card:hover {
-            border-color: rgba(211, 89, 255, 0.4);
-            transform: translateY(-2px);
+
+        .tool-mini:hover {
+            border-color: var(--green);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
         }
-        .blog-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 14px;
+
+        .tool-mini-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
             font-weight: 700;
-            color: #e0e8f0;
+            margin-bottom: 2px;
+        }
+
+        .tool-mini-sub {
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--green);
             margin-bottom: 8px;
         }
-        .blog-excerpt { font-size: 13px; color: #7B8DA6; line-height: 1.5; margin-bottom: 12px; }
-        .blog-link {
-            color: #D359FF;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .blog-link:hover { color: #0095FF; }
 
-        /* Contact */
-        .contact-info {
+        .tool-mini-desc {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.5;
+        }
+
+        /* Team floating */
+        .team-row {
             display: flex;
-            gap: 30px;
-            margin-bottom: 30px;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 32px;
             flex-wrap: wrap;
         }
-        .contact-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #0095FF;
-            margin-bottom: 4px;
-        }
-        .contact-value { font-size: 15px; color: #e0e8f0; }
-        .contact-value a { color: inherit; text-decoration: none; }
-        .contact-value a:hover { color: #0095FF; }
 
-        .contact-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .contact-form .form-group.full { grid-column: 1 / -1; }
-        .contact-form label {
-            display: block;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #7B8DA6;
-            margin-bottom: 6px;
-        }
-        .contact-form input,
-        .contact-form textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(0, 149, 255, 0.05);
-            border: 1px solid rgba(0, 149, 255, 0.2);
-            border-radius: 8px;
-            color: #e0e8f0;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-        .contact-form input:focus,
-        .contact-form textarea:focus {
-            border-color: #0095FF;
-        }
-        .contact-form textarea { resize: vertical; min-height: 100px; }
-
-        /* CTA Button */
-        .cta-button {
-            display: inline-block;
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #0095FF, #D359FF);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(0, 149, 255, 0.4);
-        }
-        .cta-button:hover {
-            box-shadow: 0 0 40px rgba(0, 149, 255, 0.6), 0 0 60px rgba(211, 89, 255, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* Scroll indicator */
-        .scroll-hint {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 50;
+        .team-bubble {
             text-align: center;
-            opacity: 1;
-            transition: opacity 0.5s;
-            pointer-events: none;
-        }
-        .scroll-hint.hidden { opacity: 0; }
-        .scroll-hint span {
-            display: block;
-            font-size: 12px;
-            color: #7B8DA6;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .scroll-arrow {
-            width: 24px;
-            height: 24px;
-            border-right: 2px solid #0095FF;
-            border-bottom: 2px solid #0095FF;
-            transform: rotate(45deg);
-            margin: 0 auto;
-            animation: scrollBounce 1.5s infinite;
-        }
-        @keyframes scrollBounce {
-            0%, 100% { transform: rotate(45deg) translateY(0); opacity: 1; }
-            50% { transform: rotate(45deg) translateY(8px); opacity: 0.5; }
+            transition: all 0.3s;
         }
 
-        /* Section indicator dots */
-        .section-dots {
-            position: fixed;
-            right: 24px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 50;
+        .team-bubble:hover { transform: translateY(-6px); }
+
+        .team-bubble-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #000;
+            margin: 0 auto 8px;
+            transition: box-shadow 0.3s;
+        }
+
+        .team-bubble:hover .team-bubble-avatar {
+            box-shadow: 0 0 24px rgba(255,255,255,0.15);
+        }
+
+        .team-bubble-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .team-bubble-role {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            max-width: 100px;
+        }
+
+        /* Good Morning section */
+        .gm-split {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            max-width: 900px;
+            padding: 36px 44px;
+            background: none;
+            border: none;
+            border-radius: 20px;
+        }
+
+        .gm-media-slot {
+            width: 100%;
+            aspect-ratio: 16/10;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 176, 0, 0.15);
+            background: linear-gradient(135deg, #0d0d0a 0%, #1a1a14 50%, #0d0d0a 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex-direction: column;
             gap: 12px;
         }
-        .section-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(123, 141, 166, 0.3);
-            border: 1px solid rgba(123, 141, 166, 0.4);
-            cursor: pointer;
-            transition: all 0.3s;
-            pointer-events: all;
-        }
-        .section-dot.active {
-            background: #0095FF;
-            border-color: #0095FF;
-            box-shadow: 0 0 10px rgba(0, 149, 255, 0.5);
-            transform: scale(1.3);
-        }
-        .section-dot:hover { border-color: #0095FF; }
 
-        /* Responsive */
+        .gm-media-slot img,
+        .gm-media-slot video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+
+        .gm-media-placeholder {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1rem, 2vw, 1.4rem);
+            font-weight: 700;
+            color: var(--amber);
+            text-shadow: 0 0 30px rgba(255, 176, 0, 0.25);
+            text-align: center;
+            line-height: 1.3;
+            z-index: 1;
+        }
+
+        .gm-media-placeholder .bracket { color: var(--text-muted); font-weight: 400; }
+        .gm-media-placeholder .variable { color: #33ff33; }
+
+        .gm-media-scanlines {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+            z-index: 2;
+        }
+
+        .gm-media-badge {
+            font-family: monospace;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: 3px 10px;
+            border: 1px solid rgba(255,176,0,0.2);
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .gm-title-visual {
+            font-family: 'Courier New', monospace;
+            font-size: clamp(1.4rem, 2.5vw, 2rem);
+            font-weight: 700;
+            color: var(--amber);
+            text-shadow: 0 0 40px rgba(255,176,0,0.25);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .gm-title-visual .bracket { color: var(--text-muted); font-weight: 400; }
+        .gm-title-visual .variable { color: #33ff33; }
+
+        .gm-platform {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+            padding: 6px 14px;
+            border: 1px solid rgba(255,176,0,0.12);
+            border-radius: 6px;
+        }
+
+        .gm-platform strong { color: var(--amber); }
+
+        /* Blog cards */
+        .blog-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .blog-mini {
+            flex: 1;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .blog-mini:hover {
+            border-color: var(--green);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        .blog-mini-tag {
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--green);
+            margin-bottom: 6px;
+        }
+
+        .blog-mini-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 6px;
+        }
+
+        .blog-mini-excerpt {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Contact */
+        .contact-3d-card {
+            max-width: 480px;
+            padding: 40px;
+            background: none;
+            border: none;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .contact-3d-card .title-3d { margin-bottom: 12px; }
+        .contact-3d-card .sub-3d { margin-bottom: 28px; }
+
+        .contact-3d-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.3s;
+            text-decoration: none;
+            min-width: 260px;
+            justify-content: center;
+        }
+
+        .contact-link:hover {
+            border-color: var(--green);
+            color: var(--text);
+            transform: translateY(-2px);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), var(--red));
+            z-index: 200;
+            transition: width 0.1s;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .services-showcase { grid-template-columns: repeat(2, 1fr); }
+            .gm-split { grid-template-columns: 1fr; gap: 24px; }
+        }
+
         @media (max-width: 768px) {
-            .services-grid, .team-grid { grid-template-columns: 1fr; }
-            .blog-grid { grid-template-columns: 1fr; }
-            .contact-form { grid-template-columns: 1fr; }
-            .contact-form .form-group.full { grid-column: 1; }
-            .panel-inner { padding: 30px 20px; }
-            .hero-logo-img { width: 140px; }
-            .nav-links { display: none; }
-            .section-dots { right: 12px; }
-            .contact-info { flex-direction: column; gap: 16px; }
+            .nav-3d { padding: 16px 20px; }
+            .panel-3d.right, .panel-3d.left { margin: 0; padding: 24px; }
+            .panel-3d.center { padding: 24px; }
+            .hero-3d { padding: 0 24px; }
+            .stats-row { gap: 20px; flex-wrap: wrap; }
+            .tools-row { flex-direction: column; }
+            .blog-row { flex-direction: column; }
+            .team-row { gap: 12px; }
+            .services-showcase { grid-template-columns: 1fr; }
+            .gm-split { padding: 24px; }
+            .contact-3d-card { padding: 28px 24px; margin: 0 16px; }
+            .hero-logo { width: 60px; height: 60px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Three.js background -->
-    <canvas id="bg-canvas"></canvas>
+<div id="canvas-container"></div>
 
-    <!-- Navigation -->
-    <nav>
-        <a href="#" class="nav-logo" onclick="scrollToSection(0); return false;">
-            <img src="logo-brand.svg" alt="Shababeek Labs">
-            <span>SHABABEEK LABS</span>
-        </a>
-        <div class="nav-links">
-            <a onclick="scrollToSection(0)">Home</a>
-            <a onclick="scrollToSection(1)">About</a>
-            <a onclick="scrollToSection(2)">Services</a>
-            <a onclick="scrollToSection(3)">Featured</a>
-            <a onclick="scrollToSection(4)">Team</a>
-            <a onclick="scrollToSection(5)">Blog</a>
-            <a onclick="scrollToSection(6)">Contact</a>
-        </div>
-    </nav>
-
-    <!-- Section indicator dots -->
-    <div class="section-dots">
-        <div class="section-dot active" onclick="scrollToSection(0)" title="Home"></div>
-        <div class="section-dot" onclick="scrollToSection(1)" title="About"></div>
-        <div class="section-dot" onclick="scrollToSection(2)" title="Services"></div>
-        <div class="section-dot" onclick="scrollToSection(3)" title="Featured"></div>
-        <div class="section-dot" onclick="scrollToSection(4)" title="Team"></div>
-        <div class="section-dot" onclick="scrollToSection(5)" title="Blog"></div>
-        <div class="section-dot" onclick="scrollToSection(6)" title="Contact"></div>
+<!-- NAVBAR -->
+<nav class="nav-3d" id="nav3d">
+    <a href="#" class="nav-logo">
+        <img src="logo.png" alt="Shababeek Labs">
+        <span class="nav-logo-text">Shababeek <span class="green">Labs</span></span>
+    </a>
+    <div class="nav-dots" id="navDots">
+        <div class="nav-dot-wrap"><button class="nav-dot active" data-section="0" aria-label="Hero"></button><span class="nav-dot-label">Home</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="1" aria-label="About"></button><span class="nav-dot-label">About</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="2" aria-label="Services"></button><span class="nav-dot-label">Services</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="3" aria-label="Tools"></button><span class="nav-dot-label">Tools</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="4" aria-label="Good Morning"></button><span class="nav-dot-label">Game</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="5" aria-label="Team"></button><span class="nav-dot-label">Team</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="6" aria-label="Blog"></button><span class="nav-dot-label">Blog</span></div>
+        <div class="nav-dot-wrap"><button class="nav-dot" data-section="7" aria-label="Contact"></button><span class="nav-dot-label">Contact</span></div>
     </div>
+</nav>
 
-    <!-- Scroll hint -->
-    <div class="scroll-hint" id="scrollHint">
-        <span>Scroll to explore</span>
-        <div class="scroll-arrow"></div>
-    </div>
+<!-- SCROLL HINT -->
+<div class="scroll-hint" id="scrollHint">
+    <span>Scroll to explore</span>
+    <div class="scroll-hint-line"></div>
+</div>
 
-    <!-- Scroll spacer (drives camera) -->
-    <div id="scroll-spacer"></div>
+<!-- PROGRESS BAR -->
+<div class="progress-bar" id="progressBar"></div>
 
-    <!-- SECTION 0: Hero -->
-    <div class="content-panel hero-panel active" data-section="0">
-        <div class="panel-inner">
-            <div class="hero-logo">
-                <img src="logo-brand.svg" alt="Shababeek Labs" class="hero-logo-img">
-            </div>
-            <h1 class="hero-title">We Open Windows Into Other Realities</h1>
-            <p class="hero-tagline">"Shababeek" means Windows in Arabic.</p>
-            <p class="hero-subtitle">We're a small crew from Egypt building VR games, training sims, and immersive experiences. If it involves a headset, we're in.</p>
-            <button class="cta-button" onclick="scrollToSection(6)">Get in Touch</button>
-        </div>
-    </div>
+<!-- OVERLAY SECTIONS -->
+<div id="overlay">
 
-    <!-- SECTION 1: About -->
-    <div class="content-panel panel-blue" data-section="1">
-        <div class="panel-inner">
-            <h2>Who We Are</h2>
-            <p class="section-text">We're Shababeek Labs — a small team from Egypt building VR stuff we actually care about. "Shababeek" means "Windows" in Arabic, and that's exactly what we do: open windows into other realities. Games, training simulations, AR events, education, metaverse worlds — if it involves putting on a headset and going somewhere else, we're probably already building it.</p>
-            <p class="section-text">We're based in Egypt with presence in the UAE. No massive team, no corporate fluff — just five people who think VR is cooler than reality and are stubborn enough to prove it.</p>
-        </div>
-    </div>
-
-    <!-- SECTION 2: Services -->
-    <div class="content-panel panel-blue" data-section="2">
-        <div class="panel-inner" style="max-width: 900px;">
-            <h2>What We Do</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">🎮</div>
-                    <h3>VR Games</h3>
-                    <p>Mind-bending immersive experiences. Dark comedies, puzzle worlds, and things that don't fit neatly into genres.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">🏭</div>
-                    <h3>Training Simulations</h3>
-                    <p>VR sims that let people practice dangerous or hard-to-replicate tasks — without the actual danger or expense.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">🎪</div>
-                    <h3>AR/VR Events</h3>
-                    <p>Immersive tech behind brand activations and events that people actually remember and talk about.</p>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">🎓</div>
-                    <h3>EdTech XR</h3>
-                    <p>VR and AR education modules that teach faster and more effectively than slides and textbooks ever could.</p>
-                </div>
-                <div class="service-card" style="grid-column: 1 / -1;">
-                    <div class="service-icon">🌐</div>
-                    <h3>Metaverse & Social VR</h3>
-                    <p>Virtual worlds people actually want to hang out in. Social VR platforms and shared spaces that feel less like video calls and more like being there.</p>
-                </div>
+    <!-- 0: HERO -->
+    <div class="section-3d visible" id="sec-0">
+        <div class="hero-3d">
+            <img src="logo.png" alt="Shababeek Labs" class="hero-logo">
+            <h1 class="hero-title-3d">
+                We Build<br>
+                <span class="red">Immersive</span><br>
+                <span class="green">Experiences</span>
+            </h1>
+            <p class="hero-sub-3d">
+                Shababeek Labs crafts virtual &amp; augmented reality solutions — training simulations, narrative VR games, open-source tools, and interactive events.
+            </p>
+            <div class="hero-actions-3d">
+                <a href="#contact" class="btn-3d btn-3d-primary" onclick="goToSection(7)">
+                    Start a Project
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#" class="btn-3d btn-3d-ghost" onclick="goToSection(2)">See Our Work</a>
             </div>
         </div>
     </div>
 
-    <!-- SECTION 3: Featured Project -->
-    <div class="content-panel panel-orange" data-section="3">
-        <div class="panel-inner">
-            <h2>Featured Project</h2>
-            <h3 style="color: #FF6B35;">Good Morning, { employee name }</h3>
-            <div class="project-meta">
-                <div class="meta-item"><strong>Genre:</strong> VR Dark Comedy</div>
-                <div class="meta-item"><strong>Platform:</strong> Meta Quest & PCVR</div>
-                <div class="meta-item"><strong>Status:</strong> In Development</div>
-                <div class="meta-item"><strong>Style:</strong> Cassette Futurism</div>
-            </div>
-            <p class="section-text">A dark comedy VR experience set in a corporate office that shouldn't exist. Cassette futurism meets workplace horror. 12 days of existential office weirdness where nothing is quite right and the employee manual keeps changing.</p>
-            <p class="section-text">Navigate impossible architecture, attend meetings that defy physics, and figure out why your desk keeps moving floors. It's a game about the future that feels uncomfortably familiar.</p>
-            <a href="blog-good-morning.html" class="cta-button" style="margin-top: 20px; background: linear-gradient(135deg, #FF6B35, #D359FF);">Read the Dev Blog</a>
+    <!-- 1: ABOUT -->
+    <div class="section-3d" id="sec-1">
+        <div class="panel-3d left">
+            <div class="label-3d">About Us</div>
+            <h2 class="title-3d">A crew obsessed with pushing XR forward</h2>
+            <p class="sub-3d" style="margin-bottom:0;">
+                Based in Abu Dhabi, we're a tight-knit team of developers, artists, and strategists building the next generation of immersive experiences. VR training, AR activations, narrative games, and open-source developer tools — blending technical depth with bold creative vision.
+            </p>
         </div>
     </div>
 
-    <!-- SECTION 4: Team -->
-    <div class="content-panel panel-violet" data-section="4">
-        <div class="panel-inner" style="max-width: 900px;">
-            <h2>Meet The Crew</h2>
-            <div class="team-grid">
-                <div class="team-member">
-                    <div class="team-avatar">AA</div>
-                    <div>
-                        <div class="team-name">Ahmad Abdallah</div>
-                        <div class="team-role">Co-Founder & Technical Lead</div>
-                        <div class="team-bio">Started this madness because VR seemed cool. Technical wizard, visionary, and the reason this company exists.</div>
-                    </div>
+    <!-- 2: SERVICES -->
+    <div class="section-3d" id="sec-2">
+        <div class="panel-3d center wide">
+            <div class="label-3d" style="justify-content:center;">What We Do</div>
+            <h2 class="title-3d">Services</h2>
+            <p class="sub-3d" style="margin:0 auto 24px;">End-to-end XR development — concept to deployment.</p>
+            <div class="services-showcase">
+                <div class="service-showcase-card">
+                    <!-- Replace src with your image: images/service-training.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(224,72,50,0.1), rgba(107,191,59,0.05));">&#x1F3AE;</div>
+                    <div class="service-showcase-label">VR Training &amp; Simulation<br><span class="service-showcase-sub">Enterprise immersive training</span></div>
                 </div>
-                <div class="team-member">
-                    <div class="team-avatar">KS</div>
-                    <div>
-                        <div class="team-name">Khaled Shemy</div>
-                        <div class="team-role">Co-Founder & Business Lead</div>
-                        <div class="team-bio">Keeps us from total chaos. Business strategist, market oracle, and somehow always right about the numbers.</div>
-                    </div>
+                <div class="service-showcase-card">
+                    <!-- Replace with: images/service-events.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(107,191,59,0.1), rgba(0,240,255,0.05));">&#x2728;</div>
+                    <div class="service-showcase-label">AR/VR Events<br><span class="service-showcase-sub">Interactive brand activations</span></div>
                 </div>
-                <div class="team-member">
-                    <div class="team-avatar">KH</div>
-                    <div>
-                        <div class="team-name">Karim Haddad</div>
-                        <div class="team-role">Technical Artist</div>
-                        <div class="team-bio">Makes things look insanely beautiful. 3D modeling, texturing, shaders — the reason our VR doesn't look terrible.</div>
-                    </div>
+                <div class="service-showcase-card">
+                    <!-- Replace with: images/service-edtech.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(0,240,255,0.08), rgba(180,74,255,0.05));">&#x1F393;</div>
+                    <div class="service-showcase-label">EdTech XR<br><span class="service-showcase-sub">Immersive learning experiences</span></div>
                 </div>
-                <div class="team-member">
-                    <div class="team-avatar">MA</div>
-                    <div>
-                        <div class="team-name">Mohammed Alaa</div>
-                        <div class="team-role">Lead XR Developer</div>
-                        <div class="team-bio">Unity XR guru. Makes VR feel smooth and responsive. ECS DOTS enthusiast and gameplay architect extraordinaire.</div>
-                    </div>
+                <div class="service-showcase-card">
+                    <!-- Replace with: images/service-games.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(255,176,0,0.08), rgba(224,72,50,0.05));">&#x1F30D;</div>
+                    <div class="service-showcase-label">VR &amp; Mobile Games<br><span class="service-showcase-sub">Narrative &amp; casual titles</span></div>
                 </div>
-                <div class="team-member" style="grid-column: 1 / -1; max-width: 50%;">
-                    <div class="team-avatar">HA</div>
-                    <div>
-                        <div class="team-name">Hassan Al Sayed</div>
-                        <div class="team-role">Junior Unity Developer</div>
-                        <div class="team-bio">The rising star. Strong game dev and C++ skills with a graphic design background. Always leveling up.</div>
-                    </div>
+                <div class="service-showcase-card">
+                    <!-- Replace with: images/service-3d.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(180,74,255,0.08), rgba(107,191,59,0.05));">&#x1F3D7;&#xFE0F;</div>
+                    <div class="service-showcase-label">3D &amp; Technical Art<br><span class="service-showcase-sub">Modeling, shaders, VFX</span></div>
+                </div>
+                <div class="service-showcase-card">
+                    <!-- Replace with: images/service-custom.webp -->
+                    <div class="service-showcase-img placeholder" style="background:linear-gradient(135deg, rgba(57,255,20,0.08), rgba(224,72,50,0.04));">&#x1F527;</div>
+                    <div class="service-showcase-label">Custom XR Dev<br><span class="service-showcase-sub">Unity, ECS/DOTS, cross-platform</span></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SECTION 5: Blog -->
-    <div class="content-panel panel-violet" data-section="5">
-        <div class="panel-inner" style="max-width: 900px;">
-            <h2>Latest from the Lab</h2>
-            <div class="blog-grid">
-                <div class="blog-card">
-                    <div class="blog-title">VR Training Works</div>
-                    <p class="blog-excerpt">Why simulation beats lecture, and how we're proving it in industrial training.</p>
-                    <a href="blog-vr-training.html" class="blog-link">Read Article →</a>
+    <!-- 3: TOOLS -->
+    <div class="section-3d" id="sec-3">
+        <div class="panel-3d center">
+            <div class="label-3d" style="justify-content:center;">Open Source Tools</div>
+            <h2 class="title-3d">Built by us, used by everyone</h2>
+            <div class="tools-row">
+                <div class="tool-mini">
+                    <div class="tool-mini-name">GripVR</div>
+                    <div class="tool-mini-sub">Interaction System</div>
+                    <div class="tool-mini-desc">Modular VR interaction framework — grabbing, hand tracking, haptics, UI. Replaces XRI with something that actually works.</div>
                 </div>
-                <div class="blog-card">
-                    <div class="blog-title">Good Morning, { employee name }</div>
-                    <p class="blog-excerpt">Behind the scenes of our weirdest game project yet. Corporate absurdism in VR.</p>
-                    <a href="blog-good-morning.html" class="blog-link">Read Article →</a>
-                </div>
-                <div class="blog-card">
-                    <div class="blog-title">The Future of XR</div>
-                    <p class="blog-excerpt">Where we think spatial computing is heading, and what that means for creators.</p>
-                    <a href="blog-future-xr.html" class="blog-link">Read Article →</a>
+                <div class="tool-mini">
+                    <div class="tool-mini-name">ReactiveVars</div>
+                    <div class="tool-mini-sub">Reactive State</div>
+                    <div class="tool-mini-desc">Lightweight reactive variables for Unity. Subscribe to changes, bind UI, clean data flows. Zero-alloc, type-safe.</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SECTION 6: Contact -->
-    <div class="content-panel panel-blue" data-section="6">
-        <div class="panel-inner">
-            <h2>Get In Touch</h2>
-            <div class="contact-info">
-                <div>
-                    <div class="contact-label">Email</div>
-                    <div class="contact-value"><a href="mailto:info@shababeeklabs.com">info@shababeeklabs.com</a></div>
+    <!-- 4: GOOD MORNING -->
+    <div class="section-3d" id="sec-4">
+        <div class="gm-split">
+            <div class="gm-media-slot">
+                <!-- Replace with screenshot or video: <img src="images/gm-screenshot.webp" alt="Good Morning"> or <video src="..." autoplay muted loop></video> -->
+                <div class="gm-media-placeholder">
+                    Good Morning,<br>
+                    <span class="bracket">{</span> <span class="variable">employee name</span> <span class="bracket">}</span>.
                 </div>
-                <div>
-                    <div class="contact-label">Schedule a Call</div>
-                    <div class="contact-value"><a href="https://calendly.com">Book Time on Calendly</a></div>
+                <div class="gm-media-badge">Meta Quest 3 &amp; 3S</div>
+                <div class="gm-media-scanlines"></div>
+            </div>
+            <div>
+                <div class="label-3d amber">Featured Game</div>
+                <div class="gm-title-visual">
+                    Good Morning,<br>
+                    <span class="bracket">{</span> <span class="variable">employee name</span> <span class="bracket">}</span>.
                 </div>
-                <div>
-                    <div class="contact-label">Locations</div>
-                    <div class="contact-value">Egypt & UAE</div>
+                <p class="sub-3d">
+                    A VR narrative experience blending dark comedy, psychological tension, and interactive design. Retro-futuristic office aesthetics, cassette-tape storytelling, and choices that shape fundamentally different outcomes.
+                </p>
+                <div class="gm-platform">
+                    <strong>Quest 3</strong> &middot; <strong>PCVR</strong> &middot; Seated VR
+                </div>
+                <div style="margin-top: 20px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <a href="good-morning-landing.html" class="btn-3d btn-3d-primary" style="background:var(--amber); color:#0d0d0a; padding:10px 24px; font-size:0.85rem;">
+                        Learn More
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="blog-good-morning.html" class="btn-3d btn-3d-ghost" style="border-color:rgba(255,176,0,0.25); color:var(--amber); padding:10px 24px; font-size:0.85rem;">Dev Blog</a>
                 </div>
             </div>
-            <form class="contact-form" onsubmit="handleFormSubmit(event)">
-                <div class="form-group">
-                    <label>Your Name</label>
-                    <input type="text" placeholder="Enter your name" required>
-                </div>
-                <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" placeholder="your@email.com" required>
-                </div>
-                <div class="form-group full">
-                    <label>Subject</label>
-                    <input type="text" placeholder="What's this about?" required>
-                </div>
-                <div class="form-group full">
-                    <label>Message</label>
-                    <textarea placeholder="Tell us what's on your mind..." rows="4" required></textarea>
-                </div>
-                <div class="form-group full">
-                    <button type="submit" class="cta-button" style="width: 100%;">Send Message</button>
-                </div>
-            </form>
         </div>
     </div>
 
-    <!-- Footer overlay -->
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; text-align: center; padding: 12px; font-size: 12px; color: #7B8DA6; z-index: 5; pointer-events: none;">
-        &copy; 2026 Shababeek Labs. Windows into other realities.
+    <!-- 5: TEAM -->
+    <div class="section-3d" id="sec-5">
+        <div class="panel-3d center">
+            <div class="label-3d" style="justify-content:center;">Our Team</div>
+            <h2 class="title-3d">The people behind the headsets</h2>
+            <div class="team-row">
+                <div class="team-bubble">
+                    <div class="team-bubble-avatar" style="background:#d4a043;">AA</div>
+                    <div class="team-bubble-name">Ahmad Abdallah</div>
+                    <div class="team-bubble-role">Co-Founder & Tech Lead</div>
+                </div>
+                <div class="team-bubble">
+                    <div class="team-bubble-avatar" style="background:#00f0ff;">KS</div>
+                    <div class="team-bubble-name">Khaled Shemy</div>
+                    <div class="team-bubble-role">Co-Founder & Biz Lead</div>
+                </div>
+                <div class="team-bubble">
+                    <div class="team-bubble-avatar" style="background:#ff0080;">KH</div>
+                    <div class="team-bubble-name">Karim Haddad</div>
+                    <div class="team-bubble-role">Technical Artist</div>
+                </div>
+                <div class="team-bubble">
+                    <div class="team-bubble-avatar" style="background:#b44aff;">MA</div>
+                    <div class="team-bubble-name">Mohammed Alaa</div>
+                    <div class="team-bubble-role">Lead XR Dev</div>
+                </div>
+                <div class="team-bubble">
+                    <div class="team-bubble-avatar" style="background:#39ff14;">HA</div>
+                    <div class="team-bubble-name">Hassan Al Sayed</div>
+                    <div class="team-bubble-role">Unity Developer</div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 6: BLOG -->
+    <div class="section-3d" id="sec-6">
+        <div class="panel-3d center">
+            <div class="label-3d" style="justify-content:center;">Blog</div>
+            <h2 class="title-3d">Latest from the Lab</h2>
+            <div class="blog-row">
+                <a href="blog-good-morning.html" class="blog-mini">
+                    <div class="blog-mini-tag">Dev Log</div>
+                    <div class="blog-mini-title">Building "Good Morning, { employee name }"</div>
+                    <div class="blog-mini-excerpt">Our biggest creative project — a VR narrative blending dark comedy and psychological tension.</div>
+                </a>
+                <a href="blog-vr-training.html" class="blog-mini">
+                    <div class="blog-mini-tag">Industry</div>
+                    <div class="blog-mini-title">The Future of Industrial VR Training</div>
+                    <div class="blog-mini-excerpt">How VR is transforming safety training — reducing incidents and cutting costs.</div>
+                </a>
+                <a href="blog-future-xr.html" class="blog-mini">
+                    <div class="blog-mini-tag">Trends</div>
+                    <div class="blog-mini-title">Where XR is Heading in 2026</div>
+                    <div class="blog-mini-excerpt">Spatial computing, passthrough AR, hand tracking — our take on the future.</div>
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        // ========================
-        // THREE.JS SCENE SETUP
-        // ========================
-        const canvas = document.getElementById('bg-canvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setClearColor(0x0a0a14, 1);
+    <!-- 7: CONTACT -->
+    <div class="section-3d" id="sec-7">
+        <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+            <div class="contact-3d-card">
+                <div class="label-3d" style="justify-content:center;">Contact</div>
+                <h2 class="title-3d">Let's build something together</h2>
+                <p class="sub-3d">Got an XR project in mind? We'd love to hear about it.</p>
+                <div class="contact-3d-links">
+                    <a href="mailto:hello@shababeeklabs.com" class="contact-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        hello@shababeeklabs.com
+                    </a>
+                    <a href="#" class="contact-link">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Abu Dhabi, UAE
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0a0a14, 0.012);
+</div>
 
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 5);
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function() {
+    'use strict';
 
-        // Colors
-        const COL_BLUE = new THREE.Color(0x0095FF);
-        const COL_VIOLET = new THREE.Color(0xD359FF);
-        const COL_ORANGE = new THREE.Color(0xFF6B35);
-        const COL_MUTED = new THREE.Color(0x7B8DA6);
+    // ===== SCENE SETUP =====
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.012);
 
-        // ========================
-        // CAMERA PATH (spline through 3D space)
-        // ========================
-        const NUM_SECTIONS = 7;
-        const cameraPoints = [
-            new THREE.Vector3(0, 0, 5),       // 0: Hero
-            new THREE.Vector3(-4, 2, -10),     // 1: About
-            new THREE.Vector3(4, -1, -25),     // 2: Services
-            new THREE.Vector3(-2, 3, -40),     // 3: Featured
-            new THREE.Vector3(3, 0, -55),      // 4: Team
-            new THREE.Vector3(-3, -2, -70),    // 5: Blog
-            new THREE.Vector3(0, 1, -85),      // 6: Contact
-        ];
-        const lookPoints = [
-            new THREE.Vector3(0, 0, -10),
-            new THREE.Vector3(-4, 2, -20),
-            new THREE.Vector3(4, -1, -35),
-            new THREE.Vector3(-2, 3, -50),
-            new THREE.Vector3(3, 0, -65),
-            new THREE.Vector3(-3, -2, -80),
-            new THREE.Vector3(0, 1, -95),
-        ];
-        const cameraPath = new THREE.CatmullRomCurve3(cameraPoints);
-        const lookPath = new THREE.CatmullRomCurve3(lookPoints);
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
+    camera.position.set(0, 2, 20);
 
-        // ========================
-        // PORTAL FRAMES (floating window shapes)
-        // ========================
-        const portalFrames = [];
-        const portalGroup = new THREE.Group();
-        scene.add(portalGroup);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        // ========================
-        // SVG PATTERN LOADER
-        // Reads mashrabiya-pattern.svg and converts layers into Three.js geometry
-        // ========================
-        let patternLayers = null; // cached parsed SVG data
+    // ===== COLORS =====
+    const RED = new THREE.Color(0xE04832);
+    const GREEN = new THREE.Color(0x6BBF3B);
+    const AMBER = new THREE.Color(0xffb000);
+    const CYAN = new THREE.Color(0x00f0ff);
+    const PURPLE = new THREE.Color(0xb44aff);
 
-        // Parse SVG element coordinates into arrays of {x, y} points
-        function parseSVGElement(el) {
-            const tag = el.tagName.toLowerCase();
-            if (tag === 'rect') {
-                const x = parseFloat(el.getAttribute('x'));
-                const y = parseFloat(el.getAttribute('y'));
-                const w = parseFloat(el.getAttribute('width'));
-                const h = parseFloat(el.getAttribute('height'));
-                return { type: 'line', points: [
-                    {x, y}, {x: x+w, y}, {x: x+w, y: y+h}, {x, y: y+h}, {x, y}
-                ]};
-            }
-            if (tag === 'polygon') {
-                const pts = el.getAttribute('points').trim().split(/\s+/).map(p => {
-                    const [x, y] = p.split(',').map(Number);
-                    return {x, y};
-                });
-                pts.push({...pts[0]}); // close the shape
-                return { type: 'line', points: pts };
-            }
-            if (tag === 'circle') {
-                const cx = parseFloat(el.getAttribute('cx'));
-                const cy = parseFloat(el.getAttribute('cy'));
-                const r = parseFloat(el.getAttribute('r'));
-                const hasFill = el.getAttribute('fill') && el.getAttribute('fill') !== 'none';
-                const pts = [];
-                for (let i = 0; i <= 24; i++) {
-                    const a = (Math.PI * 2 / 24) * i;
-                    pts.push({x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r});
-                }
-                return { type: hasFill && r > 0.5 ? 'glow' : 'line', points: pts, radius: r };
-            }
-            return null;
-        }
+    // ===== LIGHTS =====
+    const ambientLight = new THREE.AmbientLight(0x111122, 0.4);
+    scene.add(ambientLight);
 
-        function parseSVGPattern(svgDoc) {
-            const layers = { outer: [], star: [], detail: [], center: [], glow: [] };
-            const elements = svgDoc.querySelectorAll('[data-layer]');
-            elements.forEach(el => {
-                const layer = el.getAttribute('data-layer');
-                const parsed = parseSVGElement(el);
-                if (parsed && layers[layer]) {
-                    layers[layer].push(parsed);
-                }
-            });
-            return layers;
-        }
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    dirLight.position.set(5, 10, 5);
+    scene.add(dirLight);
 
-        // Opacity map per layer
-        const LAYER_OPACITY = {
-            outer: 0.6,
-            star: 0.4,
-            detail: 0.2,
-            center: 0.6,
-            glow: 0.03
-        };
+    // ===== GRID FLOOR =====
+    const gridHelper = new THREE.GridHelper(200, 80, 0x1a3a1a, 0x0a1a0a);
+    gridHelper.position.y = -3;
+    gridHelper.material.transparent = true;
+    gridHelper.material.opacity = 0.4;
+    scene.add(gridHelper);
 
-        function createPortalFrame(position, color, scale, rotY) {
-            const group = new THREE.Group();
-            if (!patternLayers) return group; // safety: SVG not loaded yet
+    // Secondary grid
+    const gridHelper2 = new THREE.GridHelper(200, 20, 0x2a4a2a, 0x0a0a0a);
+    gridHelper2.position.y = -2.98;
+    gridHelper2.material.transparent = true;
+    gridHelper2.material.opacity = 0.15;
+    scene.add(gridHelper2);
 
-            // For each layer, create Three.js geometry
-            Object.keys(patternLayers).forEach(layerName => {
-                const opacity = LAYER_OPACITY[layerName] || 0.3;
-                patternLayers[layerName].forEach(shape => {
-                    if (layerName === 'glow') {
-                        // Glow plane — filled shape (works with both circle and rect glow)
-                        const glowMat = new THREE.MeshBasicMaterial({
-                            color, transparent: true, opacity: 0.03, side: THREE.DoubleSide
-                        });
-                        const radius = shape.radius || (shape.points.length > 0 ?
-                            Math.max(...shape.points.map(p => Math.sqrt(p.x * p.x + p.y * p.y))) : 1.5);
-                        const glowPlane = new THREE.Mesh(
-                            new THREE.CircleGeometry(radius * scale, 16),
-                            glowMat
-                        );
-                        glowPlane.userData.layer = layerName;
-                        group.add(glowPlane);
-                    } else {
-                        // Line geometry
-                        const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
-                        const pts = shape.points.map(p =>
-                            new THREE.Vector3(p.x * scale, -p.y * scale, 0) // flip Y (SVG Y is down)
-                        );
-                        const geo = new THREE.BufferGeometry().setFromPoints(pts);
-                        const line = new THREE.Line(geo, mat);
-                        line.userData.layer = layerName;
-                        group.add(line);
-                    }
-                });
-            });
+    // ===== FLOATING GEOMETRIC STRUCTURES =====
+    const structures = [];
 
-            group.position.copy(position);
-            group.rotation.y = rotY || 0;
-            portalGroup.add(group);
-            portalFrames.push({ mesh: group, baseOpacity: 0.6, paneOpacity: 0.4, glowOpacity: 0.03 });
-            return group;
-        }
-
-        // Portal placement config
-        const portalConfigs = [
-            // Hero area
-            { pos: [3, 2, 0], color: COL_BLUE, scale: 0.8, rot: 0.3 },
-            { pos: [-4, -1, -2], color: COL_VIOLET, scale: 0.6, rot: -0.2 },
-            { pos: [5, 3, -5], color: COL_ORANGE, scale: 0.5, rot: 0.5 },
-            // About area
-            { pos: [-7, 4, -12], color: COL_BLUE, scale: 1.0, rot: 0.4 },
-            { pos: [-1, 0, -8], color: COL_VIOLET, scale: 0.7, rot: -0.3 },
-            { pos: [6, 1, -14], color: COL_BLUE, scale: 0.5, rot: 0.1 },
-            // Services area
-            { pos: [7, -3, -22], color: COL_BLUE, scale: 0.9, rot: -0.2 },
-            { pos: [1, 2, -28], color: COL_VIOLET, scale: 0.6, rot: 0.4 },
-            { pos: [-5, -2, -24], color: COL_ORANGE, scale: 0.7, rot: 0.2 },
-            // Featured area
-            { pos: [-5, 5, -38], color: COL_ORANGE, scale: 1.1, rot: -0.3 },
-            { pos: [4, 1, -42], color: COL_VIOLET, scale: 0.6, rot: 0.6 },
-            { pos: [0, -3, -36], color: COL_BLUE, scale: 0.5, rot: -0.1 },
-            // Team area
-            { pos: [6, 2, -53], color: COL_VIOLET, scale: 0.8, rot: 0.3 },
-            { pos: [0, -2, -57], color: COL_BLUE, scale: 0.6, rot: -0.4 },
-            { pos: [-4, 3, -50], color: COL_ORANGE, scale: 0.5, rot: 0.1 },
-            // Blog area
-            { pos: [-6, -1, -68], color: COL_VIOLET, scale: 0.9, rot: 0.2 },
-            { pos: [3, 3, -72], color: COL_BLUE, scale: 0.7, rot: -0.5 },
-            { pos: [0, -3, -66], color: COL_ORANGE, scale: 0.5, rot: 0.4 },
-            // Contact area
-            { pos: [4, 3, -83], color: COL_BLUE, scale: 0.8, rot: -0.2 },
-            { pos: [-5, -1, -87], color: COL_VIOLET, scale: 0.7, rot: 0.3 },
-            { pos: [0, 4, -90], color: COL_ORANGE, scale: 0.6, rot: -0.1 },
-        ];
-
-        // Embedded SVG pattern (works offline & on file:// protocol)
-        // Edit mashrabiya-pattern.svg externally; if served via HTTP, the external file overrides this.
-        const EMBEDDED_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1.8 -1.8 3.6 3.6">
-          <rect data-layer="outer" x="-1.3" y="-1.3" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
-          <rect data-layer="outer" x="0" y="-1.3" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
-          <rect data-layer="outer" x="-1.3" y="0" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
-          <rect data-layer="outer" x="0" y="0" width="1.3" height="1.3" fill="none" stroke="white" stroke-width="0.06"/>
-          <polygon data-layer="star" points="-0.65,-1.569 0.269,-0.65 -0.65,0.269 -1.569,-0.65" fill="none" stroke="white" stroke-width="0.06"/>
-          <polygon data-layer="star" points="0.65,-1.569 1.569,-0.65 0.65,0.269 -0.269,-0.65" fill="none" stroke="white" stroke-width="0.06"/>
-          <polygon data-layer="star" points="-0.65,-0.269 0.269,0.65 -0.65,1.569 -1.569,0.65" fill="none" stroke="white" stroke-width="0.06"/>
-          <polygon data-layer="star" points="0.65,-0.269 1.569,0.65 0.65,1.569 -0.269,0.65" fill="none" stroke="white" stroke-width="0.06"/>
-          <polygon data-layer="detail" points="-0.292,-0.65 -0.397,-0.397 -0.65,-0.292 -0.903,-0.397 -1.008,-0.65 -0.903,-0.903 -0.65,-1.008 -0.397,-0.903" fill="none" stroke="white" stroke-width="0.04"/>
-          <polygon data-layer="detail" points="1.008,-0.65 0.903,-0.397 0.65,-0.292 0.397,-0.397 0.292,-0.65 0.397,-0.903 0.65,-1.008 0.903,-0.903" fill="none" stroke="white" stroke-width="0.04"/>
-          <polygon data-layer="detail" points="-0.292,0.65 -0.397,0.903 -0.65,1.008 -0.903,0.903 -1.008,0.65 -0.903,0.397 -0.65,0.292 -0.397,0.397" fill="none" stroke="white" stroke-width="0.04"/>
-          <polygon data-layer="detail" points="1.008,0.65 0.903,0.903 0.65,1.008 0.397,0.903 0.292,0.65 0.397,0.397 0.65,0.292 0.903,0.397" fill="none" stroke="white" stroke-width="0.04"/>
-          <polygon data-layer="detail" points="0,-0.381 0.381,0 0,0.381 -0.381,0" fill="none" stroke="white" stroke-width="0.04"/>
-          <polygon data-layer="detail" points="0,-1.569 0.269,-1.3 0,-1.031 -0.269,-1.3" fill="none" stroke="white" stroke-width="0.03"/>
-          <polygon data-layer="detail" points="0,1.031 0.269,1.3 0,1.569 -0.269,1.3" fill="none" stroke="white" stroke-width="0.03"/>
-          <polygon data-layer="detail" points="-1.569,0 -1.3,0.269 -1.031,0 -1.3,-0.269" fill="none" stroke="white" stroke-width="0.03"/>
-          <polygon data-layer="detail" points="1.031,0 1.3,0.269 1.569,0 1.3,-0.269" fill="none" stroke="white" stroke-width="0.03"/>
-          <circle data-layer="center" cx="-0.65" cy="-0.65" r="0.08" fill="white" stroke="none"/>
-          <circle data-layer="center" cx="0.65" cy="-0.65" r="0.08" fill="white" stroke="none"/>
-          <circle data-layer="center" cx="-0.65" cy="0.65" r="0.08" fill="white" stroke="none"/>
-          <circle data-layer="center" cx="0.65" cy="0.65" r="0.08" fill="white" stroke="none"/>
-          <circle data-layer="center" cx="0" cy="0" r="0.06" fill="white" stroke="none"/>
-          <circle data-layer="glow" cx="0" cy="0" r="1.7" fill="white" fill-opacity="0.05" stroke="none"/>
-        </svg>`;
-
-        function initPortals(svgText) {
-            const parser = new DOMParser();
-            const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
-            patternLayers = parseSVGPattern(svgDoc);
-            portalConfigs.forEach(cfg => {
-                createPortalFrame(
-                    new THREE.Vector3(cfg.pos[0], cfg.pos[1], cfg.pos[2]),
-                    cfg.color, cfg.scale, cfg.rot
-                );
-            });
-        }
-
-        // Try external SVG first (works on HTTP servers), fall back to embedded
-        fetch('mashrabiya-pattern.svg')
-            .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
-            .then(svgText => initPortals(svgText))
-            .catch(() => {
-                console.log('Using embedded mashrabiya pattern (external SVG unavailable)');
-                initPortals(EMBEDDED_SVG);
-            });
-
-        // ========================
-        // PARTICLE FIELD
-        // ========================
-        const particleCount = 2000;
-        const particleGeo = new THREE.BufferGeometry();
-        const particlePositions = new Float32Array(particleCount * 3);
-        const particleColors = new Float32Array(particleCount * 3);
-        const colors = [COL_BLUE, COL_VIOLET, COL_ORANGE, COL_MUTED];
-
-        for (let i = 0; i < particleCount; i++) {
-            particlePositions[i * 3] = (Math.random() - 0.5) * 30;
-            particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-            particlePositions[i * 3 + 2] = Math.random() * -100;
-
-            const c = colors[Math.floor(Math.random() * colors.length)];
-            particleColors[i * 3] = c.r;
-            particleColors[i * 3 + 1] = c.g;
-            particleColors[i * 3 + 2] = c.b;
-        }
-
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        particleGeo.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
-
-        const particleMat = new THREE.PointsMaterial({
-            size: 0.06,
-            vertexColors: true,
+    function createGlowMaterial(color, emissiveIntensity) {
+        return new THREE.MeshStandardMaterial({
+            color: 0x000000,
+            emissive: color,
+            emissiveIntensity: emissiveIntensity || 0.6,
+            metalness: 0.8,
+            roughness: 0.3,
             transparent: true,
-            opacity: 0.7,
-            sizeAttenuation: true,
+            opacity: 0.85,
         });
-        const particles = new THREE.Points(particleGeo, particleMat);
-        scene.add(particles);
+    }
 
-        // ========================
-        // GRID LINES (depth cue)
-        // ========================
-        const gridGroup = new THREE.Group();
-        const gridMat = new THREE.LineBasicMaterial({ color: 0x0095FF, transparent: true, opacity: 0.05 });
-
-        for (let i = -15; i <= 15; i += 2) {
-            const geo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(i, -6, 10), new THREE.Vector3(i, -6, -100)
-            ]);
-            gridGroup.add(new THREE.Line(geo, gridMat));
-        }
-        for (let z = 10; z >= -100; z -= 5) {
-            const geo = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-15, -6, z), new THREE.Vector3(15, -6, z)
-            ]);
-            gridGroup.add(new THREE.Line(geo, gridMat));
-        }
-        scene.add(gridGroup);
-
-        // ========================
-        // FLOATING MASHRABIYA ACCENT STARS
-        // ========================
-        const floaters = [];
-        function createFloater(pos, color, size) {
-            const group = new THREE.Group();
-            const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.2 });
-
-            // Mini 8-pointed star (two rotated squares)
-            const s = size;
-            const sq1 = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(-s, -s, 0), new THREE.Vector3(s, -s, 0),
-                new THREE.Vector3(s, s, 0), new THREE.Vector3(-s, s, 0),
-                new THREE.Vector3(-s, -s, 0)
-            ]);
-            group.add(new THREE.Line(sq1, mat));
-
-            const d = s * Math.SQRT2;
-            const sq2 = new THREE.BufferGeometry().setFromPoints([
-                new THREE.Vector3(0, -d, 0), new THREE.Vector3(d, 0, 0),
-                new THREE.Vector3(0, d, 0), new THREE.Vector3(-d, 0, 0),
-                new THREE.Vector3(0, -d, 0)
-            ]);
-            group.add(new THREE.Line(sq2, mat));
-
-            group.position.copy(pos);
-            group.userData = { speed: 0.2 + Math.random() * 0.5, offset: Math.random() * Math.PI * 2 };
-            scene.add(group);
-            floaters.push(group);
-        }
-
-        for (let i = 0; i < 35; i++) {
-            const z = Math.random() * -95;
-            const x = (Math.random() - 0.5) * 24;
-            const y = (Math.random() - 0.5) * 14;
-            const c = colors[Math.floor(Math.random() * colors.length)];
-            createFloater(new THREE.Vector3(x, y, z), c, 0.08 + Math.random() * 0.2);
-        }
-
-        // ========================
-        // CONSTELLATION SHAPES
-        // Dot-and-line shapes representing VR, gaming, code, 3D, etc.
-        // ========================
-        const constellations = [];
-
-        // Each constellation: { stars: [[x,y,z],...], lines: [[i,j],...] }
-        // All coordinates relative to center, unit scale ~1
-        const CONSTELLATION_DEFS = {
-            // VR Headset — front view silhouette
-            vrHeadset: {
-                stars: [
-                    [-0.8, 0.35, 0], [-0.5, 0.5, 0], [0, 0.55, 0], [0.5, 0.5, 0], [0.8, 0.35, 0],  // top edge
-                    [0.85, 0, 0], [0.8, -0.35, 0], [0.5, -0.45, 0],                                    // right side
-                    [-0.85, 0, 0], [-0.8, -0.35, 0], [-0.5, -0.45, 0],                                  // left side
-                    [0, -0.4, 0],                                                                         // chin/bottom center
-                    [-0.35, 0.05, 0], [-0.15, 0.05, 0],                                                  // left lens
-                    [0.15, 0.05, 0], [0.35, 0.05, 0],                                                    // right lens
-                    [-1.0, 0.1, 0], [1.0, 0.1, 0],                                                       // strap ends
-                ],
-                lines: [
-                    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,11],[11,10],[10,9],[9,8],[8,0], // outline
-                    [12,13], [14,15],  // lens indicators
-                    [8,16], [5,17],    // straps
-                ]
-            },
-            // Game Controller — top-down simplified
-            gameController: {
-                stars: [
-                    [0, 0.3, 0],                                                                          // top center (d-pad up)
-                    [-0.25, 0.1, 0], [0.25, 0.1, 0],                                                     // shoulders
-                    [-0.6, 0, 0], [-0.35, 0, 0], [0.35, 0, 0], [0.6, 0, 0],                             // grips top
-                    [-0.7, -0.35, 0], [-0.5, -0.15, 0],                                                  // left grip
-                    [0.7, -0.35, 0], [0.5, -0.15, 0],                                                    // right grip
-                    [-0.25, -0.1, 0], [0.25, -0.1, 0],                                                   // center bottom
-                    [0, -0.2, 0],                                                                          // bottom center
-                    [-0.3, 0.2, 0],                                                                        // D-pad
-                    [0.4, 0.2, 0], [0.5, 0.1, 0], [0.4, 0, 0], [0.3, 0.1, 0],                           // face buttons
-                ],
-                lines: [
-                    [1,0],[0,2],                    // top bridge
-                    [1,3],[3,8],[8,7],              // left arm
-                    [2,6],[6,10],[10,9],            // right arm
-                    [1,4],[4,11],[11,13],[13,12],[12,5],[5,2], // body outline
-                    [14,1],                          // d-pad
-                    [15,16],[16,17],[17,18],[18,15], // face buttons diamond
-                ]
-            },
-            // Code Brackets  < / >
-            codeBrackets: {
-                stars: [
-                    [-0.6, 0.5, 0], [-0.9, 0, 0], [-0.6, -0.5, 0],                                     // left angle <
-                    [0.6, 0.5, 0], [0.9, 0, 0], [0.6, -0.5, 0],                                         // right angle >
-                    [-0.1, 0.4, 0], [0.1, -0.4, 0],                                                      // slash /
-                    [-0.3, -0.65, 0], [0.3, -0.65, 0],                                                   // underscore _
-                    [0, 0.7, 0],                                                                           // top dot (cursor blink)
-                ],
-                lines: [
-                    [0,1],[1,2],       // <
-                    [3,4],[4,5],       // >
-                    [6,7],             // /
-                    [8,9],             // _
-                ]
-            },
-            // 3D Cube — wireframe perspective cube
-            cube3D: {
-                stars: [
-                    [-0.4, -0.4, -0.2], [0.4, -0.4, -0.2], [0.4, 0.4, -0.2], [-0.4, 0.4, -0.2],       // front face
-                    [-0.25, -0.25, 0.2], [0.55, -0.25, 0.2], [0.55, 0.55, 0.2], [-0.25, 0.55, 0.2],    // back face (offset for perspective)
-                ],
-                lines: [
-                    [0,1],[1,2],[2,3],[3,0],  // front
-                    [4,5],[5,6],[6,7],[7,4],  // back
-                    [0,4],[1,5],[2,6],[3,7],  // connecting edges
-                ]
-            },
-            // Eye/Vision — represents immersive experience
-            eye: {
-                stars: [
-                    [-0.8, 0, 0], [-0.5, 0.3, 0], [0, 0.4, 0], [0.5, 0.3, 0], [0.8, 0, 0],           // top lid
-                    [0.5, -0.3, 0], [0, -0.4, 0], [-0.5, -0.3, 0],                                      // bottom lid
-                    [-0.2, 0.05, 0], [0.2, 0.05, 0], [0, 0.2, 0], [0, -0.15, 0],                        // iris
-                    [0, 0.02, 0],                                                                          // pupil center
-                ],
-                lines: [
-                    [0,1],[1,2],[2,3],[3,4],        // upper lid
-                    [4,5],[5,6],[6,7],[7,0],        // lower lid
-                    [8,10],[10,9],[9,11],[11,8],    // iris diamond
-                ]
-            },
-            // Rocket — innovation / launch
-            rocket: {
-                stars: [
-                    [0, 0.9, 0],                                                                           // nose tip
-                    [-0.2, 0.5, 0], [0.2, 0.5, 0],                                                       // nose base
-                    [-0.2, -0.3, 0], [0.2, -0.3, 0],                                                     // body base
-                    [-0.4, -0.55, 0], [0, -0.45, 0], [0.4, -0.55, 0],                                   // fins
-                    [0, -0.7, 0], [-0.1, -0.85, 0], [0.1, -0.85, 0],                                    // exhaust flame
-                    [-0.08, 0.15, 0], [0.08, 0.15, 0],                                                   // window
-                ],
-                lines: [
-                    [0,1],[0,2],[1,3],[2,4],        // body
-                    [3,5],[5,6],[6,7],[7,4],        // fins
-                    [3,4],                           // body base
-                    [6,8],[8,9],[8,10],             // exhaust
-                    [11,12],                         // window
-                ]
-            },
-            // Lightbulb — ideas / creativity
-            lightbulb: {
-                stars: [
-                    [0, 0.7, 0],                                                                           // top
-                    [-0.35, 0.55, 0], [0.35, 0.55, 0],                                                   // upper curve
-                    [-0.45, 0.2, 0], [0.45, 0.2, 0],                                                     // widest
-                    [-0.35, -0.1, 0], [0.35, -0.1, 0],                                                   // narrow
-                    [-0.2, -0.3, 0], [0.2, -0.3, 0],                                                     // base top
-                    [-0.2, -0.5, 0], [0.2, -0.5, 0],                                                     // base bottom
-                    [-0.15, -0.5, 0], [0.15, -0.5, 0],                                                   // screw bottom
-                    [0, 0.3, 0],                                                                           // filament top
-                    [-0.12, 0, 0], [0.12, 0, 0],                                                          // filament base
-                ],
-                lines: [
-                    [0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,8], // bulb outline
-                    [7,9],[8,10],[9,10],                              // base
-                    [13,14],[13,15],[14,15],                           // filament
-                ]
-            },
-            // Wand/Pointer — 3D interaction / spatial computing
-            pointer: {
-                stars: [
-                    [0, 0.8, 0],                                                                           // tip
-                    [-0.15, 0.4, 0], [0.15, 0.4, 0],                                                     // shaft top
-                    [-0.1, -0.5, 0], [0.1, -0.5, 0],                                                     // shaft bottom
-                    [-0.3, 0.65, 0], [0.25, 0.75, 0], [0.35, 0.5, 0], [-0.2, 0.9, 0],                  // sparkles
-                ],
-                lines: [
-                    [0,1],[0,2],[1,3],[2,4],[3,4], // wand shape
-                    [0,5],[0,6],[0,7],[0,8],       // sparkle rays
-                ]
-            },
-        };
-
-        // Build a constellation Three.js group from a definition
-        function createConstellation(def, position, color, scale, rotY) {
-            const group = new THREE.Group();
-            const dotSize = 0.035 * scale;
-
-            // Star dots — small glowing spheres
-            const dotGeo = new THREE.SphereGeometry(dotSize, 6, 6);
-            const starPositions = def.stars.map(s => new THREE.Vector3(s[0] * scale, s[1] * scale, s[2] * scale));
-
-            starPositions.forEach(sp => {
-                const dotMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 });
-                const dot = new THREE.Mesh(dotGeo, dotMat);
-                dot.position.copy(sp);
-                dot.userData.isDot = true;
-                group.add(dot);
-            });
-
-            // Connecting lines
-            const lineMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.25 });
-            def.lines.forEach(pair => {
-                const geo = new THREE.BufferGeometry().setFromPoints([starPositions[pair[0]], starPositions[pair[1]]]);
-                const line = new THREE.Line(geo, lineMat);
-                line.userData.isLine = true;
-                group.add(line);
-            });
-
-            group.position.copy(position);
-            if (rotY) group.rotation.y = rotY;
-            group.userData = {
-                speed: 0.15 + Math.random() * 0.3,
-                offset: Math.random() * Math.PI * 2,
-                baseY: position.y,
-                twinklePhase: Math.random() * Math.PI * 2
-            };
-            scene.add(group);
-            constellations.push(group);
-            return group;
-        }
-
-        // Place constellations throughout the scene, thematically near relevant sections
-        // Section Z positions: Hero=5, About=-10, Services=-25, Featured=-40, Team=-55, Blog=-70, Contact=-85
-
-        // Hero area (z: 5 to -5) — VR headset + cube
-        createConstellation(CONSTELLATION_DEFS.vrHeadset, new THREE.Vector3(5, 3, 1), COL_BLUE, 1.2, 0.2);
-        createConstellation(CONSTELLATION_DEFS.cube3D, new THREE.Vector3(-6, -1, -3), COL_VIOLET, 0.9, -0.3);
-
-        // About area (z: -5 to -17) — eye + lightbulb
-        createConstellation(CONSTELLATION_DEFS.eye, new THREE.Vector3(-6, 4, -8), COL_BLUE, 1.0, 0.15);
-        createConstellation(CONSTELLATION_DEFS.lightbulb, new THREE.Vector3(5, 0, -14), COL_ORANGE, 0.8, -0.1);
-
-        // Services area (z: -17 to -32) — all service icons
-        createConstellation(CONSTELLATION_DEFS.vrHeadset, new THREE.Vector3(8, 2, -20), COL_VIOLET, 0.9, -0.25);
-        createConstellation(CONSTELLATION_DEFS.gameController, new THREE.Vector3(-7, -2, -24), COL_BLUE, 1.1, 0.3);
-        createConstellation(CONSTELLATION_DEFS.codeBrackets, new THREE.Vector3(6, -3, -28), COL_ORANGE, 0.8, 0.15);
-        createConstellation(CONSTELLATION_DEFS.cube3D, new THREE.Vector3(-4, 4, -30), COL_VIOLET, 1.0, -0.4);
-
-        // Featured project area (z: -32 to -47) — rocket + gamepad
-        createConstellation(CONSTELLATION_DEFS.rocket, new THREE.Vector3(-7, 5, -35), COL_ORANGE, 1.0, 0.2);
-        createConstellation(CONSTELLATION_DEFS.gameController, new THREE.Vector3(6, -1, -42), COL_BLUE, 0.9, -0.15);
-
-        // Team area (z: -47 to -62) — lightbulb + eye
-        createConstellation(CONSTELLATION_DEFS.lightbulb, new THREE.Vector3(7, 3, -50), COL_VIOLET, 0.85, 0.3);
-        createConstellation(CONSTELLATION_DEFS.eye, new THREE.Vector3(-5, -2, -56), COL_BLUE, 1.0, -0.2);
-
-        // Blog area (z: -62 to -77) — code + pointer
-        createConstellation(CONSTELLATION_DEFS.codeBrackets, new THREE.Vector3(-7, 1, -65), COL_VIOLET, 1.0, 0.25);
-        createConstellation(CONSTELLATION_DEFS.pointer, new THREE.Vector3(5, -3, -72), COL_ORANGE, 0.9, -0.3);
-
-        // Contact area (z: -77 to -92) — rocket + VR headset
-        createConstellation(CONSTELLATION_DEFS.rocket, new THREE.Vector3(6, 4, -80), COL_BLUE, 0.85, -0.2);
-        createConstellation(CONSTELLATION_DEFS.vrHeadset, new THREE.Vector3(-5, -1, -88), COL_VIOLET, 1.0, 0.15);
-
-        // ========================
-        // CONNECTING LINES (subtle depth threads)
-        // ========================
-        const threadMat = new THREE.LineBasicMaterial({ color: 0x0095FF, transparent: true, opacity: 0.04 });
-        for (let i = 0; i < 15; i++) {
-            const startZ = Math.random() * -90;
-            const p1 = new THREE.Vector3((Math.random()-0.5)*16, (Math.random()-0.5)*10, startZ);
-            const p2 = new THREE.Vector3((Math.random()-0.5)*16, (Math.random()-0.5)*10, startZ - 10 - Math.random()*15);
-            const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-            scene.add(new THREE.Line(geo, threadMat));
-        }
-
-        // ========================
-        // SCROLL & SECTION LOGIC
-        // ========================
-        let currentSection = 0;
-        let scrollProgress = 0;
-        let smoothProgress = 0;
-        let lastScrollProgress = 0;
-        let scrollDirection = 1; // 1 = down, -1 = up
-        let scrollTimer = null;
-        let isSnapping = false;
-        const panels = document.querySelectorAll('.content-panel');
-        const dots = document.querySelectorAll('.section-dot');
-        const scrollHint = document.getElementById('scrollHint');
-
-        // Detect scroll stop and snap to nearest section in scroll direction
-        window.addEventListener('scroll', function() {
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
-            const progress = Math.max(0, Math.min(1, scrollTop / scrollMax));
-
-            // Track scroll direction
-            if (progress > lastScrollProgress + 0.001) {
-                scrollDirection = 1;
-            } else if (progress < lastScrollProgress - 0.001) {
-                scrollDirection = -1;
-            }
-            lastScrollProgress = progress;
-
-            // Reset snapping flag when user scrolls manually
-            isSnapping = false;
-
-            // Clear previous snap timer
-            if (scrollTimer) clearTimeout(scrollTimer);
-
-            // After user stops scrolling for 150ms, snap to nearest section
-            scrollTimer = setTimeout(function() {
-                if (isSnapping) return;
-                const sectionFloat = progress * (NUM_SECTIONS - 1);
-                const fraction = sectionFloat - Math.floor(sectionFloat);
-
-                // Only snap if we're between sections (not already on one)
-                if (fraction < 0.05 || fraction > 0.95) return;
-
-                // Snap in the scroll direction
-                let targetSection;
-                if (scrollDirection > 0) {
-                    targetSection = Math.ceil(sectionFloat);
-                } else {
-                    targetSection = Math.floor(sectionFloat);
-                }
-                targetSection = Math.max(0, Math.min(NUM_SECTIONS - 1, targetSection));
-
-                isSnapping = true;
-                scrollToSection(targetSection);
-            }, 150);
+    function createWireframeMaterial(color) {
+        return new THREE.MeshBasicMaterial({
+            color: color,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25,
         });
+    }
 
-        function updateSections(progress) {
-            const sectionFloat = progress * (NUM_SECTIONS - 1);
-            const section = Math.round(sectionFloat);
+    // Create mashrabiya-inspired lattice structures along the path
+    function createLatticePanel(x, y, z, color, rotY) {
+        const group = new THREE.Group();
+        const barGeo = new THREE.BoxGeometry(0.05, 2, 0.05);
+        const mat = createGlowMaterial(color, 0.5);
 
-            // Show/hide panels with smooth fade
-            panels.forEach((panel, i) => {
-                const dist = Math.abs(sectionFloat - i);
-                if (dist < 0.45) {
-                    panel.classList.add('active');
-                    const fade = Math.max(0, 1 - (dist / 0.45));
-                    panel.style.opacity = fade;
-                } else {
-                    panel.classList.remove('active');
-                    panel.style.opacity = 0;
-                }
-            });
-
-            // Update dots
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === section);
-            });
-
-            // Hide scroll hint after first scroll
-            if (progress > 0.02) {
-                scrollHint.classList.add('hidden');
-            } else {
-                scrollHint.classList.remove('hidden');
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+                const bar = new THREE.Mesh(barGeo, mat);
+                bar.position.set(i * 0.4 - 1, j * 0.4 - 1, 0);
+                group.add(bar);
             }
-
-            currentSection = section;
         }
 
-        function scrollToSection(index) {
-            const scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
-            const targetScroll = (index / (NUM_SECTIONS - 1)) * scrollMax;
-            window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+        // Horizontal bars
+        const hBarGeo = new THREE.BoxGeometry(2.4, 0.05, 0.05);
+        for (let j = 0; j < 6; j++) {
+            const hbar = new THREE.Mesh(hBarGeo, mat);
+            hbar.position.set(0, j * 0.4 - 1, 0);
+            group.add(hbar);
         }
 
-        // (Logo replaces lens cycling — no dynamic text needed)
+        // Frame
+        const frameGeo = new THREE.BoxGeometry(2.6, 2.6, 0.08);
+        const frameMat = createWireframeMaterial(color);
+        const frame = new THREE.Mesh(frameGeo, frameMat);
+        group.add(frame);
 
-        // ========================
-        // FORM HANDLER
-        // ========================
-        function handleFormSubmit(e) {
+        group.position.set(x, y, z);
+        group.rotation.y = rotY || 0;
+        scene.add(group);
+        structures.push({ mesh: group, baseY: y, speed: 0.3 + Math.random() * 0.2, phase: Math.random() * Math.PI * 2 });
+        return group;
+    }
+
+    // Floating cubes
+    function createFloatingCube(x, y, z, size, color) {
+        const geo = new THREE.BoxGeometry(size, size, size);
+        const mat = createWireframeMaterial(color);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(x, y, z);
+        mesh.rotation.set(Math.random(), Math.random(), Math.random());
+        scene.add(mesh);
+        structures.push({ mesh, baseY: y, speed: 0.5 + Math.random() * 0.5, phase: Math.random() * Math.PI * 2, rotate: true });
+        return mesh;
+    }
+
+    // Floating torus
+    function createFloatingTorus(x, y, z, radius, color) {
+        const geo = new THREE.TorusGeometry(radius, 0.04, 8, 32);
+        const mat = createGlowMaterial(color, 0.8);
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(x, y, z);
+        mesh.rotation.x = Math.PI / 2;
+        scene.add(mesh);
+        structures.push({ mesh, baseY: y, speed: 0.2, phase: Math.random() * Math.PI * 2, rotate: true });
+        return mesh;
+    }
+
+    // Sphere cluster
+    function createSphereCluster(x, y, z, color) {
+        const group = new THREE.Group();
+        const geo = new THREE.SphereGeometry(0.15, 12, 12);
+        const mat = createGlowMaterial(color, 1.0);
+        for (let i = 0; i < 8; i++) {
+            const s = new THREE.Mesh(geo, mat);
+            const angle = (i / 8) * Math.PI * 2;
+            const r = 0.8 + Math.random() * 0.5;
+            s.position.set(Math.cos(angle) * r, (Math.random() - 0.5) * 1.5, Math.sin(angle) * r);
+            s.scale.setScalar(0.5 + Math.random() * 1.0);
+            group.add(s);
+        }
+        group.position.set(x, y, z);
+        scene.add(group);
+        structures.push({ mesh: group, baseY: y, speed: 0.15, phase: Math.random() * Math.PI * 2, rotate: true });
+    }
+
+    // ===== POINT LIGHTS along path =====
+    function addPointLight(x, y, z, color, intensity, distance) {
+        const light = new THREE.PointLight(color, intensity, distance);
+        light.position.set(x, y, z);
+        scene.add(light);
+    }
+
+    // ===== BUILD THE ENVIRONMENT =====
+    // Zone 0: Hero — open space with logo-colored geometry
+    createFloatingCube(-6, 3, 12, 1.5, GREEN);
+    createFloatingCube(7, 1, 10, 1.0, RED);
+    createFloatingTorus(0, 5, 8, 2, GREEN);
+    addPointLight(0, 4, 15, 0x6BBF3B, 2, 30);
+    addPointLight(-5, 2, 12, 0xE04832, 1.5, 20);
+
+    // Zone 1: About — lattice panels (mashrabiya nod)
+    createLatticePanel(-8, 2, -5, GREEN, 0.3);
+    createLatticePanel(9, 3, -8, RED, -0.4);
+    createFloatingCube(5, 0, -3, 0.8, GREEN);
+    addPointLight(0, 3, -5, 0x6BBF3B, 1.5, 25);
+
+    // Zone 2: Services — scattered geometry
+    createFloatingCube(-7, 4, -20, 1.2, RED);
+    createFloatingTorus(8, 2, -22, 1.5, CYAN);
+    createSphereCluster(-5, 1, -25, GREEN);
+    addPointLight(0, 3, -22, 0xE04832, 2, 25);
+
+    // Zone 3: Tools — green/tech feel
+    createLatticePanel(-9, 1, -38, GREEN, 0.5);
+    createLatticePanel(10, 3, -40, GREEN, -0.2);
+    createFloatingCube(0, 5, -42, 1.0, GREEN);
+    createFloatingTorus(-4, 3, -36, 1.2, GREEN);
+    addPointLight(0, 4, -40, 0x6BBF3B, 3, 30);
+
+    // Zone 4: Good Morning — amber mood
+    createFloatingCube(-6, 2, -55, 1.5, AMBER);
+    createFloatingCube(7, 4, -58, 0.8, AMBER);
+    createSphereCluster(5, 1, -52, AMBER);
+    createLatticePanel(-10, 2, -57, AMBER, 0.6);
+    addPointLight(0, 3, -55, 0xffb000, 3, 30);
+    addPointLight(6, 2, -57, 0x33ff33, 1, 15);
+
+    // Zone 5: Team — colorful
+    createFloatingTorus(-6, 2, -70, 1.0, PURPLE);
+    createFloatingCube(8, 3, -72, 1.2, CYAN);
+    createSphereCluster(-3, 4, -68, 0xff0080);
+    createFloatingTorus(5, 5, -74, 0.8, 0x39ff14);
+    addPointLight(-3, 3, -70, 0xb44aff, 2, 20);
+    addPointLight(4, 3, -72, 0x00f0ff, 2, 20);
+
+    // Zone 6: Blog — subtle
+    createFloatingCube(-5, 3, -85, 0.9, GREEN);
+    createLatticePanel(9, 2, -88, RED, -0.3);
+    addPointLight(0, 3, -86, 0x6BBF3B, 1.5, 20);
+
+    // Zone 7: Contact — red glow
+    createFloatingTorus(0, 3, -102, 2.5, RED);
+    createFloatingCube(-7, 1, -100, 1.0, GREEN);
+    createFloatingCube(6, 4, -105, 0.7, RED);
+    addPointLight(0, 3, -102, 0xE04832, 3, 30);
+    addPointLight(0, 0, -100, 0x6BBF3B, 1, 15);
+
+    // ===== PARTICLES =====
+    const particleCount = 2000;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const sizes = new Float32Array(particleCount);
+
+    const colorPalette = [RED, GREEN, new THREE.Color(0xffffff)];
+
+    for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 50;
+        positions[i * 3 + 1] = Math.random() * 15 - 3;
+        positions[i * 3 + 2] = Math.random() * 140 - 115;
+
+        const c = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
+
+        sizes[i] = Math.random() * 2 + 0.5;
+    }
+
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    particleGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+    const particleMat = new THREE.PointsMaterial({
+        size: 0.08,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.6,
+        sizeAttenuation: true,
+    });
+
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // ===== CAMERA PATH =====
+    const NUM_SECTIONS = 8;
+    const sectionPositions = [
+        { x: 0, y: 2, z: 20 },    // 0: Hero
+        { x: 2, y: 2.5, z: -2 },  // 1: About
+        { x: -2, y: 3, z: -20 },  // 2: Services
+        { x: 0, y: 3, z: -38 },   // 3: Tools
+        { x: 2, y: 2, z: -54 },   // 4: Good Morning
+        { x: 0, y: 3, z: -70 },   // 5: Team
+        { x: 0, y: 2.5, z: -86 }, // 6: Blog
+        { x: 0, y: 2, z: -100 },  // 7: Contact
+    ];
+
+    const sectionLookAts = [
+        { x: 0, y: 2, z: 0 },
+        { x: 0, y: 2, z: -10 },
+        { x: 0, y: 2, z: -28 },
+        { x: 0, y: 2.5, z: -46 },
+        { x: -1, y: 2, z: -60 },
+        { x: 0, y: 2.5, z: -78 },
+        { x: 0, y: 2, z: -94 },
+        { x: 0, y: 2, z: -110 },
+    ];
+
+    // ===== SCROLL STATE (Section Snap) =====
+    let scrollProgress = 0;
+    let currentSection = 0;
+    let targetSection = 0;
+    let isTransitioning = false;
+    let wheelCooldown = false;
+
+    // Navigate to section
+    window.goToSection = function(idx) {
+        idx = Math.max(0, Math.min(NUM_SECTIONS - 1, idx));
+        targetSection = idx;
+    };
+
+    // Wheel-based section snapping — one scroll = one section
+    window.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (wheelCooldown) return;
+
+        const direction = e.deltaY > 0 ? 1 : -1;
+        const next = targetSection + direction;
+        if (next >= 0 && next < NUM_SECTIONS) {
+            targetSection = next;
+            wheelCooldown = true;
+            setTimeout(() => { wheelCooldown = false; }, 700);
+        }
+    }, { passive: false });
+
+    // Touch support for mobile
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+        const diff = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(diff) > 50) {
+            const direction = diff > 0 ? 1 : -1;
+            const next = targetSection + direction;
+            if (next >= 0 && next < NUM_SECTIONS) {
+                targetSection = next;
+            }
+        }
+    }, { passive: true });
+
+    // Keyboard support
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'PageDown') {
             e.preventDefault();
-            const form = e.target;
-            const inputs = form.querySelectorAll('input');
-            const name = inputs[0].value;
-            const email = inputs[1].value;
-            const subject = inputs[2] ? inputs[2].value : 'Contact';
-            const message = form.querySelector('textarea').value;
-            const mailtoLink = 'mailto:info@shababeeklabs.com?subject=' +
-                encodeURIComponent(subject) +
-                '&body=' + encodeURIComponent('From: ' + name + ' (' + email + ')\n\n' + message);
-            window.location.href = mailtoLink;
+            if (targetSection < NUM_SECTIONS - 1) targetSection++;
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+            e.preventDefault();
+            if (targetSection > 0) targetSection--;
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            targetSection = 0;
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            targetSection = NUM_SECTIONS - 1;
         }
+    });
 
-        // ========================
-        // ANIMATION LOOP
-        // ========================
-        const clock = new THREE.Clock();
-        const targetCamPos = new THREE.Vector3();
-        const targetLookPos = new THREE.Vector3();
-        const currentLookTarget = new THREE.Vector3(0, 0, -10);
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const t = clock.getElapsedTime();
-
-            // Scroll-driven camera
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const scrollMax = document.getElementById('scroll-spacer').scrollHeight - window.innerHeight;
-            scrollProgress = Math.max(0, Math.min(1, scrollTop / scrollMax));
-
-            // Smooth the progress for buttery camera
-            smoothProgress += (scrollProgress - smoothProgress) * 0.06;
-
-            // Camera position from spline
-            cameraPath.getPoint(smoothProgress, targetCamPos);
-            lookPath.getPoint(smoothProgress, targetLookPos);
-
-            camera.position.lerp(targetCamPos, 0.08);
-            currentLookTarget.lerp(targetLookPos, 0.08);
-            camera.lookAt(currentLookTarget);
-
-            // Animate mashrabiya portal frames — gentle float and proximity glow
-            portalFrames.forEach((portal, i) => {
-                const mesh = portal.mesh;
-                mesh.position.y += Math.sin(t * 0.5 + i * 1.3) * 0.0008;
-                mesh.rotation.z = Math.sin(t * 0.3 + i * 0.7) * 0.02;
-
-                // Proximity-based brightness
-                const dist = camera.position.distanceTo(mesh.position);
-                const nearFactor = Math.max(0, 1 - dist / 18);
-                mesh.children.forEach(child => {
-                    if (child.material) {
-                        const layer = child.userData.layer;
-                        if (layer === 'glow') {
-                            child.material.opacity = portal.glowOpacity + nearFactor * 0.1;
-                        } else if (layer === 'outer') {
-                            child.material.opacity = portal.baseOpacity + nearFactor * 0.3;
-                        } else if (layer === 'star') {
-                            child.material.opacity = portal.paneOpacity + nearFactor * 0.35;
-                        } else { // detail, center
-                            child.material.opacity = (LAYER_OPACITY[layer] || 0.3) + nearFactor * 0.25;
-                        }
-                    }
-                });
-            });
-
-            // Animate floating mashrabiya star accents
-            floaters.forEach(f => {
-                f.rotation.z = t * f.userData.speed * 0.4;
-                f.position.y += Math.sin(t + f.userData.offset) * 0.0015;
-            });
-
-            // Animate constellations — gentle float, slow rotation, star twinkle
-            constellations.forEach(c => {
-                const ud = c.userData;
-                // Gentle bobbing
-                c.position.y = ud.baseY + Math.sin(t * 0.4 + ud.offset) * 0.15;
-                // Very slow rotation
-                c.rotation.z = Math.sin(t * 0.2 + ud.offset) * 0.04;
-                c.rotation.x = Math.sin(t * 0.15 + ud.offset * 1.3) * 0.03;
-
-                // Proximity-based visibility
-                const dist = camera.position.distanceTo(c.position);
-                const nearFactor = Math.max(0, 1 - dist / 22);
-
-                // Twinkle: cycle dot opacities
-                c.children.forEach((child, ci) => {
-                    if (child.material) {
-                        if (child.userData.isDot) {
-                            // Each dot twinkles at its own phase
-                            const twinkle = 0.5 + 0.5 * Math.sin(t * 2.5 + ud.twinklePhase + ci * 0.8);
-                            child.material.opacity = (0.3 + twinkle * 0.5) * (0.4 + nearFactor * 0.6);
-                        } else if (child.userData.isLine) {
-                            child.material.opacity = (0.12 + nearFactor * 0.2);
-                        }
-                    }
-                });
-            });
-
-            // Subtle particle drift
-            const positions = particles.geometry.attributes.position.array;
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3 + 1] += Math.sin(t * 0.15 + i * 0.01) * 0.0005;
-            }
-            particles.geometry.attributes.position.needsUpdate = true;
-
-            // Update section visibility
-            updateSections(smoothProgress);
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // ========================
-        // RESIZE HANDLER
-        // ========================
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+    // Nav dots
+    document.querySelectorAll('.nav-dot').forEach(dot => {
+        dot.addEventListener('click', () => {
+            goToSection(parseInt(dot.dataset.section));
         });
-    </script>
+    });
+
+    // ===== SECTION VISIBILITY =====
+    const sections = [];
+    for (let i = 0; i < NUM_SECTIONS; i++) {
+        sections.push(document.getElementById('sec-' + i));
+    }
+
+    function updateSections(sectionFloat) {
+        const newSection = Math.round(sectionFloat);
+
+        for (let i = 0; i < NUM_SECTIONS; i++) {
+            const dist = Math.abs(sectionFloat - i);
+            if (dist < 0.4) {
+                sections[i].classList.add('visible');
+            } else {
+                sections[i].classList.remove('visible');
+            }
+        }
+
+        // Update nav dots
+        if (newSection !== currentSection) {
+            currentSection = newSection;
+            document.querySelectorAll('.nav-dot').forEach((d, idx) => {
+                d.classList.toggle('active', idx === currentSection);
+            });
+        }
+
+        // Scroll hint
+        const hint = document.getElementById('scrollHint');
+        hint.classList.toggle('hidden', sectionFloat > 0.3);
+
+        // Progress bar
+        document.getElementById('progressBar').style.width = ((sectionFloat / (NUM_SECTIONS - 1)) * 100) + '%';
+    }
+
+    // ===== INTERPOLATION HELPERS =====
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function getCameraTarget(sectionFloat) {
+        const idx = Math.floor(sectionFloat);
+        const t = sectionFloat - idx;
+        const smoothT = t * t * (3 - 2 * t); // smoothstep
+
+        const i0 = Math.min(idx, NUM_SECTIONS - 1);
+        const i1 = Math.min(idx + 1, NUM_SECTIONS - 1);
+
+        return {
+            pos: {
+                x: lerp(sectionPositions[i0].x, sectionPositions[i1].x, smoothT),
+                y: lerp(sectionPositions[i0].y, sectionPositions[i1].y, smoothT),
+                z: lerp(sectionPositions[i0].z, sectionPositions[i1].z, smoothT),
+            },
+            look: {
+                x: lerp(sectionLookAts[i0].x, sectionLookAts[i1].x, smoothT),
+                y: lerp(sectionLookAts[i0].y, sectionLookAts[i1].y, smoothT),
+                z: lerp(sectionLookAts[i0].z, sectionLookAts[i1].z, smoothT),
+            }
+        };
+    }
+
+    // Track current floating section index for smooth animation
+    let currentFloat = 0;
+
+    // ===== ANIMATION LOOP =====
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        // Smooth section interpolation (snap-based)
+        currentFloat = lerp(currentFloat, targetSection, 0.05);
+
+        // Camera
+        const target = getCameraTarget(currentFloat);
+        camera.position.set(target.pos.x, target.pos.y, target.pos.z);
+        camera.lookAt(target.look.x, target.look.y, target.look.z);
+
+        // Animate structures
+        for (const s of structures) {
+            s.mesh.position.y = s.baseY + Math.sin(elapsed * s.speed + s.phase) * 0.3;
+            if (s.rotate) {
+                s.mesh.rotation.x += 0.002;
+                s.mesh.rotation.y += 0.003;
+            }
+        }
+
+        // Animate particles
+        const posArr = particles.geometry.attributes.position.array;
+        for (let i = 0; i < particleCount; i++) {
+            posArr[i * 3 + 1] += Math.sin(elapsed * 0.3 + i * 0.01) * 0.001;
+        }
+        particles.geometry.attributes.position.needsUpdate = true;
+
+        // Grid scroll effect
+        gridHelper.position.z = (elapsed * 0.5) % 2.5;
+        gridHelper2.position.z = (elapsed * 0.3) % 10;
+
+        // Update HTML sections
+        updateSections(currentFloat);
+
+        renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // ===== RESIZE =====
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // ===== INITIAL STATE =====
+    currentFloat = 0;
+    targetSection = 0;
+    updateSections(0);
+
+})();
+</script>
+
 </body>
 </html>
